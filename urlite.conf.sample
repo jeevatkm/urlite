@@ -1,0 +1,25 @@
+# urlite application config
+
+app_name = "urlite"
+run_mode = "DEV"
+http_ip = "127.0.0.1"
+http_port = "8080"
+behind_proxy = false 
+
+[owner]
+name	 = "Jeevanandam M"
+organization = "GetRightCare LLP"
+
+[cookie]
+mac_secret = "secret string which has over 256-bit entropy"
+secure     = false
+
+[database]
+type	 = "mongo"
+hosts	 = "localhost:27017"	# List of Comma seperated host:port values
+db_name	 = "urlite"
+
+[csrf]
+key    = "csrf_token"
+cookie = "XSRF-TOKEN"
+header = "X-XSRF-TOKEN"

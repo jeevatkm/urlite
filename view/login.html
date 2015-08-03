@@ -1,0 +1,32 @@
+{{define "login"}}
+<div class="row">
+	<div class="col-md-4 col-md-offset-4">
+		<!-- <img src="#" style="padding-left: 70px; margin-top:30%"> -->
+		<label style="padding-left: 100px; margin-top:10%">Logo image comes here</label>
+	</div>
+</div>
+<div class="row">
+    <div class="col-md-4 col-md-offset-4">
+        <div class="panel panel-default login-panel">
+            <div class="panel-body">
+                <form role="form" method="post">
+                    <fieldset>
+                    	{{range .Flash}}
+							<div class="alert alert-danger">{{.}}</div>
+						{{end}}
+                        <div class="form-group">
+                            <input class="form-control" placeholder="Email address" name="email" type="email" autofocus="">
+                        </div>
+                        <div class="form-group">
+                            <input class="form-control" placeholder="Password" name="password" type="password" value="">
+                        </div>
+                        <div style="text-align:center">
+                            <button type="submit" class="btn btn-success btn-green">Login</button>
+                        </div>
+                    </fieldset>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{{end}}

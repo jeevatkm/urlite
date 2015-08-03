@@ -1,0 +1,49 @@
+{{define "home"}}
+<div class="jumbotron">
+    <div class="form-inline text-center mt20">
+        <div class="form-group form-group-sm">
+            <select class="form-control" id="selectDomain" style="width:150px;">
+              <option>sample.com</option>
+              <option>example.com</option>
+            </select>
+        </div>
+        <div class="form-group form-group-sm">
+            <input type="text" class="form-control" id="inputCustomLink" placeholder="Custom Name">
+        </div>
+    </div>
+    <div class="form-inline text-center mt10">
+    	<div class="form-group">
+    		<div class="input-group">
+                <input type="text" class="form-control input-lg" id="inputLongUrl" placeholder="Enter your Long URL here" style="width: 475px;" autofocus="">
+                <span class="input-group-addon btn btn-primary input-shorten" style="width:100px;">Shorten</span>
+            </div>
+    	</div>
+    </div>
+    <div class="form-inline text-center mt10">
+        <div class="form-group">
+            <a class="btn btn-xs btn-link adv-opt-btn" for="collapseOne" data-toggle="collapse" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne" role="button"> Advanced Options</a>
+            <div id="collapseOne" class="collapse">
+                <div class="form-inline" style="padding: 15px;">
+                    <div class="checkbox">
+                        <label><input type="checkbox" id="inputSecureLink"> Secure link</label>
+                    </div>
+                    <div class="form-group form-group-sm pl10">                        
+                        <input type="password" class="form-control" id="inputSecPass" placeholder="Link Password" disabled>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    function wpr() {
+         $('#inputSecureLink').change(function(){
+            if ($('#inputSecureLink').is(':checked') == true) {
+                $('#inputSecPass').prop('disabled', false);
+            } else {
+                $('#inputSecPass').prop('disabled', true);
+            }
+        });
+     }
+</script>
+{{end}}

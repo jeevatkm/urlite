@@ -1,0 +1,25 @@
+{{define "layout/base"}}
+	{{template "layout/header" .}}
+	<!-- Fixed navbar -->
+  <nav class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="/">{{.AppName}}</a>
+      </div><!--/.navbar-header -->
+      <div id="navbar" class="navbar-collapse collapse">
+        <ul class="nav navbar-nav navbar-right">
+          <li><a href="/admin/">Dashboard</a></li>
+          {{if .IsLoggedIn}}
+          <li><a href="/logout">Logout</a></li>
+          {{end}}
+        </ul>
+      </div><!--/.nav-collapse -->
+    </div>
+  </nav>
+	
+  <div class="container" role="main">		
+	{{.Content}}	
+	</div>
+
+	{{template "layout/footer" .}}
+{{end}}
