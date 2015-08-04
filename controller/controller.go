@@ -24,6 +24,7 @@ type Response struct {
 	Body        string
 	Code        int
 	Redirect    string
+	Headers     map[string]string
 }
 
 type Data map[string]interface{}
@@ -41,7 +42,43 @@ func (h Handle) ServeHTTPC(c web.C, w http.ResponseWriter, r *http.Request) {
 	res, err := h.H(h.App, c, r)
 	body, code, contentType := res.Body, res.Code, res.ContentType
 
-	if err != nil {
+	if isApiRequest(c) {
+		w.Header().Set("Content-Type", contentType)
+
+		for k, v := range res.Headers {
+			w.Header().Set(k, v)
+		}
+
+		w.WriteHeader(code)
+		io.WriteString(w, body)
+	} else {
+		if session, exists := c.Env["Session"]; exists {
+			log.Debug("Saving sessions...")
+			err = session.(*sessions.Session).Save(r, w)
+			if err != nil {
+				log.Errorf("Can't save session: %v", err)
+				code = http.StatusInternalServerError
+			}
+		}
+
+		switch code {
+		case http.StatusOK:
+			w.Header().Set("Content-Type", contentType)
+			io.WriteString(w, body)
+		case http.StatusSeeOther, http.StatusFound:
+			http.Redirect(w, r, res.Redirect, code)
+		case http.StatusNotFound:
+			http.NotFound(w, r)
+		// And if we wanted a friendlier error page:
+		// err := ah.renderTemplate(w, "http_404.tmpl", nil)
+		case http.StatusInternalServerError:
+			http.Error(w, http.StatusText(code), code)
+		default:
+			log.Info("Unable to render output, will do something")
+		}
+	}
+
+	/*if err != nil {
 		log.Infof("HTTP %d: %q", code, err)
 		switch code {
 		case http.StatusNotFound:
@@ -73,7 +110,11 @@ func (h Handle) ServeHTTPC(c web.C, w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(code)
 			io.WriteString(w, body)
 		}
-	}
+	} */
+}
+
+func isApiRequest(c web.C) bool {
+	return c.Env["ReqMode"] == "API"
 }
 
 func GetSession(c web.C) *sessions.Session {

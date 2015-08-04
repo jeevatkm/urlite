@@ -33,7 +33,6 @@ func Session(a *context.App) func(*web.C, http.Handler) http.Handler {
 	return func(c *web.C, h http.Handler) http.Handler {
 		fn := func(w http.ResponseWriter, r *http.Request) {
 			// No session for Path /api/* since it's token based
-			//if !strings.HasPrefix(r.URL.Path, "/api") {
 			if !isApiRoute(r) {
 				session, err := a.Store.Get(r, "urlite-session")
 
@@ -59,7 +58,10 @@ func Session(a *context.App) func(*web.C, http.Handler) http.Handler {
 func Auth(a *context.App) func(*web.C, http.Handler) http.Handler {
 	return func(c *web.C, h http.Handler) http.Handler {
 		fn := func(w http.ResponseWriter, r *http.Request) {
-			if !isApiRoute(r) {
+			if isApiRoute(r) {
+				c.Env["ReqMode"] = "API"
+			} else {
+				c.Env["ReqMode"] = "WEB"
 				session := c.Env["Session"].(*sessions.Session)
 
 				if userId, exists := session.Values["User"]; exists {

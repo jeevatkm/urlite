@@ -17,6 +17,7 @@ import (
 	"github.com/jeevatkm/urlite/model"
 
 	log "github.com/Sirupsen/logrus"
+	hash "github.com/speps/go-hashids"
 
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
@@ -35,7 +36,8 @@ type App struct {
 	Template  *template.Template
 	Store     *sessions.CookieStore
 	DBSession *mgo.Session
-	Domains   map[string]model.Domain
+	Domains   map[string]*model.Domain
+	HashGen   map[string]*hash.HashID
 }
 
 type Configuration struct {
@@ -199,17 +201,26 @@ func (a *App) ParseF(data interface{}) (page string, err error) {
 	return
 }
 
-func (a *App) GetDomainLinkNum(name string) (linkNum int64, err error) {
+func (a *App) GetDomainDetail(name string) (*model.Domain, error) {
+	if d, ok := a.Domains[name]; ok {
+		return d, nil
+	}
+	return nil, errors.New("Domain not exists")
+}
+
+func (a *App) GetDomainLinkNum(name string) (n int64) {
 	dmutex.Lock()
 	defer dmutex.Unlock()
 
-	if d, ok := a.Domains[name]; ok {
-		linkNum = d.Count
-		d.Count++
-		return
-	}
+	n = a.Domains[name].Count
+	log.Infof("n: %d", n)
+	a.Domains[name].Count++
+	log.Infof("d.Count: %d", a.Domains[name].Count)
+	return
+}
 
-	err = errors.New("Domain not exists")
+func (a *App) GetUrliteID(dn string, n int64) (ul string, err error) {
+	ul, err = a.HashGen[dn].EncodeInt64([]int64{n})
 	return
 }
 
@@ -223,10 +234,17 @@ func (a *App) loadDomains() {
 		return
 	}
 
-	a.Domains = map[string]model.Domain{}
+	a.Domains = map[string]*model.Domain{}
+	a.HashGen = map[string]*hash.HashID{}
 	for _, v := range domains {
-		a.Domains[v.Name] = v
+		a.Domains[v.Name] = &model.Domain{ID: v.ID, Name: v.Name, Scheme: v.Scheme, Salt: v.Salt, Count: v.Count}
+
+		// Initializing Hash generater for each domain
+		hd := hash.NewData()
+		hd.Salt = v.Salt
+		hd.MinLength = 5
+		a.HashGen[v.Name] = hash.NewWithData(hd)
 	}
 
-	log.Infof("%d domains loaded by applciation", len(a.Domains))
+	log.Infof("%d domains loaded and it's hash generater have been initialized", len(a.Domains))
 }

@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/jeevatkm/urlite/context"
@@ -11,47 +12,42 @@ import (
 	. "github.com/jeevatkm/urlite/controller"
 )
 
-type ApiError struct {
-	Id      string `json:"id"`
-	Message string `json:"message"`
-}
-
 func Shorten(a *context.App, c web.C, r *http.Request) (*Response, error) {
-	code := http.StatusOK
-	var resBody interface{}
-
 	shortReq := &model.ShortenRequest{}
 	err := DecodeJSON(r, &shortReq)
-
 	if err != nil {
 		log.Errorf("Unmarshal error: %q", err)
-		code = http.StatusBadRequest
-		resBody = &ApiError{Id: "bad_request", Message: "The request could not be understood by the urlite api due to bad syntax."}
-		goto E
+
+		errJson := cApiError("bad_request", "The request could not be understood by the urlite api due to bad syntax")
+		return cResponse(errJson, http.StatusBadRequest), nil
 	}
 
-	log.Infof("Received request %q", shortReq)
-	log.Infof("Domain details %q", a.Domains["sample.com"])
+	domain, err := a.GetDomainDetail(shortReq.Domain)
+	if err != nil {
+		log.Errorf("Invalid domain: %v", err)
 
-	resBody = &model.ShortenResponse{Urlite: "http://test.com/sdjgfdh"}
+		errJson := cApiError("error", "Invalid domain")
+		return cResponse(errJson, http.StatusBadRequest), nil
+	}
 
-	// sreq := &model.ShortenRequest{
-	// 	LongUrl:  "http://test.com/sdjgfdhfgdhgfhdgfdgf",
-	// 	Domain:   "sample.com",
-	// 	Secure:   true,
-	// 	Password: "pass"}
+	linkNum := a.GetDomainLinkNum(domain.Name)
+	urliteId, err := a.GetUrliteID(shortReq.Domain, linkNum)
+	if err != nil {
+		log.Errorf("Unable to generate hashid for given number: %q", err)
 
-	// res, err := json.Marshal(res)
-	// if err != nil {
-	// 	log.Errorf("JSON marshal error: %s", err)
-	// }
-E:
-	jres, err := MarshalJSON(resBody)
-	// if err != nil {
-	// 	log.Errorf("Error occurred", err)
-	// 	resBody = &ApiError{Id: "error", Message: "Unable to generated the urlite"}
-	// 	jres, err := MarshalJSON(resBody)
-	// }
+		errJson := cApiError("error", "Unable to generate urlite id")
+		return cResponse(errJson, http.StatusInternalServerError), nil
+	}
 
-	return &Response{ContentType: JSON_CONTENT, Body: jres, Code: code}, nil
+	urlite := fmt.Sprintf("%v://%v/%v", domain.Scheme, domain.Name, urliteId)
+	sr := &model.ShortenResponse{Urlite: urlite}
+	result, err := MarshalJSON(sr)
+	if err != nil {
+		log.Errorf("JSON Marshal error: %q", err)
+
+		errJson := cApiError("error", "Unable to generate urlite")
+		return cResponse(errJson, http.StatusInternalServerError), nil
+	}
+
+	return cResponseH(result, http.StatusCreated, map[string]string{"Location": urlite}), nil
 }

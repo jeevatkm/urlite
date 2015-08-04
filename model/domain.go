@@ -30,7 +30,6 @@ func GetDomain(db *mgo.Database, name *string) (d *Domain, err error) {
 }
 
 func GetAllDomain(db *mgo.Database) (domains []Domain, err error) {
-	//bson.M{"_id": bson.M{"$exist": 1}}
 	err = db.C(DOMAIN_COLLECTION).Find(bson.M{}).All(&domains)
 	return
 }
