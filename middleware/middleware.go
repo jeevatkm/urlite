@@ -3,7 +3,9 @@ package middleware
 import (
 	"net/http"
 	"strings"
+	"time"
 
+	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 
 	log "github.com/Sirupsen/logrus"
@@ -64,7 +66,7 @@ func Auth(a *context.App) func(*web.C, http.Handler) http.Handler {
 					bsonId := userId.(bson.ObjectId)
 					log.Debugf("User info exists in the session: %v", bsonId.Hex())
 
-					user, err := model.GetUserById(a.DBDefault(), bsonId)
+					user, err := model.GetUserById(a.DB(), bsonId)
 					if err != nil {
 						log.Warnf("Authentication error: %v", err)
 						delete(c.Env, "User")
@@ -107,7 +109,34 @@ func AdminAuth(a *context.App) func(*web.C, http.Handler) http.Handler {
 func ApiAuth(a *context.App) func(*web.C, http.Handler) http.Handler {
 	return func(c *web.C, h http.Handler) http.Handler {
 		fn := func(w http.ResponseWriter, r *http.Request) {
-			log.Infof("I'm in API route: %v", r.URL.Path)
+			auth := r.Header.Get("Authorization")
+			if !strings.HasPrefix(auth, "Bearer ") {
+				log.Error("API User bearer is not provided")
+				authRequired(w)
+				return
+			}
+
+			// Validating Bearer
+			bearer := auth[7:]
+			au, err := model.GetApiUserByBearer(a.DB(), &bearer)
+			if err != nil {
+				log.Errorf("API User is not exists for bearer '%v', error: %v", bearer, err)
+				authRequired(w)
+				return
+			}
+
+			// Update last access
+			au.IPAddress = r.RemoteAddr
+			au.LastAccessed = time.Now()
+			go func(db *mgo.Database, u *model.ApiUser) {
+				err := model.UpdateApiUserLastAccess(db, u)
+				if err != nil {
+					log.Errorf("Unable to update last access for api user '%v'", u.ID.Hex())
+				} else {
+					log.Debugf("Last access update completed for '%v'", u.ID.Hex())
+				}
+			}(a.DB(), au)
+
 			h.ServeHTTP(w, r)
 		}
 
@@ -117,4 +146,11 @@ func ApiAuth(a *context.App) func(*web.C, http.Handler) http.Handler {
 
 func isApiRoute(r *http.Request) bool {
 	return strings.HasPrefix(r.URL.Path, "/api")
+}
+
+func authRequired(w http.ResponseWriter) {
+	w.Header().Set("WWW-Authenticate", `Bearer realm="urlite-api"`)
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http.StatusUnauthorized)
+	w.Write([]byte(`{"id":"unauthorized", "message": "Provide valid credential"}`))
 }

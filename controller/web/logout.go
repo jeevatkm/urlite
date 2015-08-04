@@ -21,10 +21,12 @@ func Logout(a *context.App, c web.C, r *http.Request) (*ctr.Response, error) {
 		s := session.(*sessions.Session)
 
 		if uid, loggedIn := s.Values["User"]; loggedIn {
-			log.Debugf("User loggedin and Hex ID is %v", uid.(bson.ObjectId).Hex())
+			log.Debugf("Yes user loggedin and Hex ID is %v", uid.(bson.ObjectId).Hex())
 
 			// Removing user from session
 			delete(s.Values, "User")
+		} else {
+			log.Debug("User not loggedin.")
 		}
 	} else {
 		log.Error("User session is not exists, incorrect invocation")

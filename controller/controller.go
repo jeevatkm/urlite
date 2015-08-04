@@ -1,6 +1,8 @@
 package controller
 
 import (
+	"encoding/json"
+	"html/template"
 	"io"
 	"net/http"
 
@@ -14,7 +16,7 @@ import (
 const (
 	TEXT_CONTENT = "text/plain"
 	HTML_CONTENT = "text/html; charset=utf-8"
-	JSON_CONTENT = "application/json"
+	JSON_CONTENT = "application/json; charset=utf-8"
 )
 
 type Response struct {
@@ -54,9 +56,10 @@ func (h Handle) ServeHTTPC(c web.C, w http.ResponseWriter, r *http.Request) {
 	} else {
 		if session, exists := c.Env["Session"]; exists {
 			log.Debug("Saving sessions...")
-			err := session.(*sessions.Session).Save(r, w)
+			err = session.(*sessions.Session).Save(r, w)
 			if err != nil {
 				log.Errorf("Can't save session: %v", err)
+				code = http.StatusInternalServerError
 			}
 		}
 
@@ -71,4 +74,48 @@ func (h Handle) ServeHTTPC(c web.C, w http.ResponseWriter, r *http.Request) {
 			io.WriteString(w, body)
 		}
 	}
+}
+
+func GetSession(c web.C) *sessions.Session {
+	return c.Env["Session"].(*sessions.Session)
+}
+
+func ToHTML(s string) template.HTML {
+	return template.HTML(s)
+}
+
+func AddData(c web.C, data map[string]interface{}) {
+	for k, v := range data {
+		c.Env[k] = v
+	}
+}
+
+func DecodeJSON(req *http.Request, v interface{}) error {
+	decoder := json.NewDecoder(req.Body)
+	return decoder.Decode(v)
+}
+
+func MarshalJSON(v interface{}) (string, error) {
+	j, err := json.Marshal(v)
+	if err != nil {
+		return "", nil
+	}
+
+	return string(j), err
+}
+
+func CheckError(err error) int {
+	if err != nil {
+		log.Errorf("Error: %v", err)
+		return http.StatusInternalServerError
+	}
+	return http.StatusOK
+}
+
+func CheckErrorp(err error, p string) int {
+	if err != nil {
+		log.Errorf("%v: %v", p, err)
+		return http.StatusInternalServerError
+	}
+	return http.StatusOK
 }

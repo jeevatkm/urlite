@@ -3,7 +3,7 @@ package model
 import (
 	"time"
 
-	mgo "gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
 
@@ -30,6 +30,7 @@ func GetDomain(db *mgo.Database, name *string) (d *Domain, err error) {
 }
 
 func GetAllDomain(db *mgo.Database) (domains []Domain, err error) {
-	err = db.C(DOMAIN_COLLECTION).Find(bson.M{"_id": bson.M{"$exist": 1}}).All(&domains)
+	//bson.M{"_id": bson.M{"$exist": 1}}
+	err = db.C(DOMAIN_COLLECTION).Find(bson.M{}).All(&domains)
 	return
 }

@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"net/http"
+	"runtime"
 
 	"github.com/jeevatkm/urlite/context"
 	"github.com/jeevatkm/urlite/controller/api"
@@ -17,6 +18,10 @@ import (
 	gw "github.com/zenazn/goji/web"
 	gm "github.com/zenazn/goji/web/middleware"
 )
+
+func init() {
+	runtime.GOMAXPROCS(runtime.NumCPU())
+}
 
 func main() {
 	configFile := flag.String("config", "/etc/urlite/urlite.conf", "Path to the configuration file")
@@ -76,7 +81,7 @@ func main() {
 	})
 
 	// Assigning Ip and port config
-	flag.Set("bind", context.Config.HttpIp+":"+context.Config.HttpPort)
+	flag.Set("bind", context.Config.Http.IP+":"+context.Config.Http.Port)
 
 	goji.Serve()
 	log.Info("Application shutdown completed.")

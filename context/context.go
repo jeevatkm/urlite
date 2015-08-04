@@ -4,18 +4,21 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"encoding/gob"
+	"errors"
 	"html/template"
 	"io"
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 
 	"github.com/BurntSushi/toml"
 	"github.com/gorilla/sessions"
+	"github.com/jeevatkm/urlite/model"
 
 	log "github.com/Sirupsen/logrus"
 
-	mgo "gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 )
 
@@ -23,19 +26,23 @@ const (
 	VERSION = "1.0-beta"
 )
 
+var (
+	dmutex sync.RWMutex
+)
+
 type App struct {
 	Config    *Configuration
 	Template  *template.Template
 	Store     *sessions.CookieStore
 	DBSession *mgo.Session
+	Domains   map[string]model.Domain
 }
 
 type Configuration struct {
 	AppName     string `toml:"app_name"`
 	RunMode     string `toml:"run_mode"`
 	BehindProxy bool   `toml:"behind_proxy"`
-	HttpIp      string `toml:"http_ip"`
-	HttpPort    string `toml:"http_port"`
+	Http        http
 	Owner       ownerInfo
 	DB          database `toml:"database"`
 	Cookie      cookie
@@ -45,6 +52,11 @@ type Configuration struct {
 type ownerInfo struct {
 	Name string
 	Org  string `toml:"organization"`
+}
+
+type http struct {
+	IP   string `toml:"http_ip"`
+	Port string `toml:"http_port"`
 }
 
 type database struct {
@@ -134,6 +146,8 @@ func InitContext(configFile *string) (ac *App) {
 	}
 	//app.DBSession.SetMode(mgo.Monotonic, true)
 
+	ac.loadDomains()
+
 	return
 }
 
@@ -157,10 +171,14 @@ func (a *App) Close() {
 }
 
 func (a *App) GetDB(n string) *mgo.Database {
+	// dbsession := a.DBSession.Clone()
+	// defer dbsession.Close()
+	// dbsession.DB(n)
+
 	return a.DBSession.DB(n)
 }
 
-func (a *App) DBDefault() *mgo.Database {
+func (a *App) DB() *mgo.Database {
 	return a.GetDB(a.Config.DB.DBName)
 }
 
@@ -174,4 +192,41 @@ func (a *App) Parse(name string, data interface{}) (page string, err error) {
 
 	page = doc.String()
 	return
+}
+
+func (a *App) ParseF(data interface{}) (page string, err error) {
+	page, err = a.Parse("layout/base", data)
+	return
+}
+
+func (a *App) GetDomainLinkNum(name string) (linkNum int64, err error) {
+	dmutex.Lock()
+	defer dmutex.Unlock()
+
+	if d, ok := a.Domains[name]; ok {
+		linkNum = d.Count
+		d.Count++
+		return
+	}
+
+	err = errors.New("Domain not exists")
+	return
+}
+
+/*
+ * Private
+ */
+func (a *App) loadDomains() {
+	domains, err := model.GetAllDomain(a.DB())
+	if err != nil {
+		log.Errorf("Error while loading domain details: %q", err)
+		return
+	}
+
+	a.Domains = map[string]model.Domain{}
+	for _, v := range domains {
+		a.Domains[v.Name] = v
+	}
+
+	log.Infof("%d domains loaded by applciation", len(a.Domains))
 }
