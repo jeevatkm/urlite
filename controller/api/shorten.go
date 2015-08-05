@@ -3,6 +3,7 @@ package api
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/jeevatkm/urlite/context"
 	"github.com/jeevatkm/urlite/model"
@@ -40,6 +41,17 @@ func Shorten(a *context.App, c web.C, r *http.Request) (*Response, error) {
 	}
 
 	urlite := fmt.Sprintf("%v://%v/%v", domain.Scheme, domain.Name, urliteId)
+
+	// Inserting into DB
+	ul := &model.Urlite{ID: urliteId, Urlite: urlite, LongUrl: shortReq.LongUrl, CreateTime: time.Now()}
+	err = model.CreateUrlite(a.DB(), domain.UrliteCollName, ul)
+	if err != nil {
+		log.Errorf("Unable to insert new urlite into db: %q", err)
+
+		errJson := cApiError("error", "Unable to generate urlite")
+		return cResponse(errJson, http.StatusInternalServerError), nil
+	}
+
 	sr := &model.ShortenResponse{Urlite: urlite}
 	result, err := MarshalJSON(sr)
 	if err != nil {

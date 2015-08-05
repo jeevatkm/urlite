@@ -105,10 +105,10 @@ func InitContext(configFile *string) (ac *App) {
 	}
 
 	// Session store
-	hash := sha256.New()
-	io.WriteString(hash, ac.Config.Cookie.MacSecret)
+	chash := sha256.New()
+	io.WriteString(chash, ac.Config.Cookie.MacSecret)
 
-	ac.Store = sessions.NewCookieStore(hash.Sum(nil))
+	ac.Store = sessions.NewCookieStore(chash.Sum(nil))
 	ac.Store.Options = &sessions.Options{
 		Path:     "/",
 		HttpOnly: true,
@@ -148,6 +148,8 @@ func InitContext(configFile *string) (ac *App) {
 	}
 	//app.DBSession.SetMode(mgo.Monotonic, true)
 
+	ac.Domains = map[string]*model.Domain{}
+	ac.HashGen = map[string]*hash.HashID{}
 	ac.loadDomains()
 
 	return
@@ -224,6 +226,22 @@ func (a *App) GetUrliteID(dn string, n int64) (ul string, err error) {
 	return
 }
 
+func (a *App) AddDomain(d model.Domain) {
+	a.Domains[d.Name] = &model.Domain{ID: d.ID,
+		Name:                d.Name,
+		Scheme:              d.Scheme,
+		Salt:                d.Salt,
+		Count:               d.Count,
+		UrliteCollName:      d.UrliteCollName,
+		UrliteStatsCollName: d.UrliteStatsCollName}
+
+	// Initializing Hash generater for domain
+	hd := hash.NewData()
+	hd.Salt = d.Salt
+	hd.MinLength = 5
+	a.HashGen[d.Name] = hash.NewWithData(hd)
+}
+
 /*
  * Private
  */
@@ -234,16 +252,8 @@ func (a *App) loadDomains() {
 		return
 	}
 
-	a.Domains = map[string]*model.Domain{}
-	a.HashGen = map[string]*hash.HashID{}
 	for _, v := range domains {
-		a.Domains[v.Name] = &model.Domain{ID: v.ID, Name: v.Name, Scheme: v.Scheme, Salt: v.Salt, Count: v.Count}
-
-		// Initializing Hash generater for each domain
-		hd := hash.NewData()
-		hd.Salt = v.Salt
-		hd.MinLength = 5
-		a.HashGen[v.Name] = hash.NewWithData(hd)
+		a.AddDomain(v)
 	}
 
 	log.Infof("%d domains loaded and it's hash generater have been initialized", len(a.Domains))
