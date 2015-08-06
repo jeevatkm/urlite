@@ -1,8 +1,8 @@
 package api
 
 import (
-	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/jeevatkm/urlite/context"
@@ -13,52 +13,62 @@ import (
 	. "github.com/jeevatkm/urlite/controller"
 )
 
+const ()
+
 func Shorten(a *context.App, c web.C, r *http.Request) (*Response, error) {
 	shortReq := &model.ShortenRequest{}
-	err := DecodeJSON(r, &shortReq)
-	if err != nil {
+	if err := DecodeJSON(r, &shortReq); err != nil {
 		log.Errorf("Unmarshal error: %q", err)
-
-		errJson := cApiError("bad_request", "The request could not be understood by the urlite api due to bad syntax")
-		return cResponse(errJson, http.StatusBadRequest), nil
+		return errUnmarshal(), nil
 	}
 
 	domain, err := a.GetDomainDetail(shortReq.Domain)
 	if err != nil {
 		log.Errorf("Invalid domain: %v", err)
-
-		errJson := cApiError("error", "Invalid domain")
-		return cResponse(errJson, http.StatusBadRequest), nil
+		return errInvalidDomain(), nil
 	}
 
-	linkNum := a.GetDomainLinkNum(domain.Name)
-	urliteId, err := a.GetUrliteID(shortReq.Domain, linkNum)
-	if err != nil {
-		log.Errorf("Unable to generate hashid for given number: %q", err)
+	urlite := ""
+	urliteId := strings.TrimSpace(shortReq.CustomName)
 
-		errJson := cApiError("error", "Unable to generate urlite id")
-		return cResponse(errJson, http.StatusInternalServerError), nil
+	if len(urliteId) > 0 { // Custom name mode
+		log.Debug("Custom name mode")
+
+		exists, _ := model.GetUrlite(a.DB(), domain.UrliteCollName, &urliteId)
+		if exists != nil {
+			log.Errorf("Given custom name is unavailable: %v", err)
+			return errConflict("Given custom name [" + urliteId + "] is unavailable"), nil
+		}
+	} else { // Hash generate mode
+		log.Debug("Hash generate mode")
+
+		linkNum := a.GetDomainLinkNum(domain.Name)
+		turliteId, err := a.GetUrliteID(domain.Name, linkNum)
+		if err != nil {
+			log.Errorf("Unable to generate hashid for number[%d]: %q", linkNum, err)
+			return errGenerateUrlite(), nil
+		}
+
+		urliteId = turliteId
 	}
 
-	urlite := fmt.Sprintf("%v://%v/%v", domain.Scheme, domain.Name, urliteId)
+	urlite = domain.ComposeUrlite(&urliteId)
 
-	// Inserting into DB
-	ul := &model.Urlite{ID: urliteId, Urlite: urlite, LongUrl: shortReq.LongUrl, CreateTime: time.Now()}
+	ul := &model.Urlite{ID: urliteId,
+		Urlite:     urlite,
+		LongUrl:    strings.TrimSpace(shortReq.LongUrl),
+		CreateTime: time.Now()}
 	err = model.CreateUrlite(a.DB(), domain.UrliteCollName, ul)
 	if err != nil {
 		log.Errorf("Unable to insert new urlite into db: %q", err)
-
-		errJson := cApiError("error", "Unable to generate urlite")
-		return cResponse(errJson, http.StatusInternalServerError), nil
+		return errGenerateUrlite(), nil
 	}
 
 	sr := &model.ShortenResponse{Urlite: urlite}
 	result, err := MarshalJSON(sr)
 	if err != nil {
 		log.Errorf("JSON Marshal error: %q", err)
-
-		errJson := cApiError("error", "Unable to generate urlite")
-		return cResponse(errJson, http.StatusInternalServerError), nil
+		return errGenerateUrlite(), nil
 	}
 
 	return cResponseH(result, http.StatusCreated, map[string]string{"Location": urlite}), nil

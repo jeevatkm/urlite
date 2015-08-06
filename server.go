@@ -30,6 +30,9 @@ func main() {
 	context := context.InitContext(configFile)
 	log.Infof("Application context loaded")
 
+	goji.Abandon(gm.AutomaticOptions)
+	goji.Use(middleware.AutomaticOptions)
+
 	// Middleware
 	goji.Use(groc.ClearHandler) // Gorilla session clear
 	goji.Use(middleware.AppInfo(context))
@@ -53,6 +56,7 @@ func main() {
 	 */
 	ar := gw.New()
 	ar.Use(gm.SubRouter)
+	ar.Use(middleware.AutomaticOptions)
 	ar.Use(middleware.AdminAuth(context))
 	ar.Get("/", ctr.Handle{context, web.Dashboard})
 
@@ -64,6 +68,8 @@ func main() {
 	 */
 	apirt := gw.New()
 	apirt.Use(gm.SubRouter)
+	apirt.Use(middleware.RESTAutomaticOptions)
+	apirt.Use(middleware.MediaTypeCheck)
 	apirt.Use(middleware.ApiAuth(context))
 	apirt.Post("/shorten", ctr.Handle{context, api.Shorten})
 
@@ -75,6 +81,10 @@ func main() {
 	goji.Handle("/static/*", http.StripPrefix("/static/", http.FileServer(http.Dir("./static"))))
 	goji.Get("/robots.txt", http.FileServer(http.Dir("./static")))
 	goji.Get("/favicon.ico", http.FileServer(http.Dir("./static/images")))
+
+	// goji.NotFound(func(w http.ResponseWriter, r *http.Request) {
+	// 	http.Error(w, "Umm... have you tried turning it off and on again?", 404)
+	// })
 
 	graceful.PostHook(func() {
 		context.Close()

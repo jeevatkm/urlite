@@ -22,6 +22,7 @@ func AppInfo(a *context.App) func(*web.C, http.Handler) http.Handler {
 			c.Env["AppName"] = a.Config.AppName
 			c.Env["AppVersion"] = context.VERSION
 			c.Env["OrgName"] = a.Config.Owner.Org
+
 			h.ServeHTTP(w, r)
 		}
 
@@ -106,6 +107,22 @@ func AdminAuth(a *context.App) func(*web.C, http.Handler) http.Handler {
 
 		return http.HandlerFunc(fn)
 	}
+}
+
+func MediaTypeCheck(c *web.C, h http.Handler) http.Handler {
+	fn := func(w http.ResponseWriter, r *http.Request) {
+		if r.Method == "POST" || r.Method == "PUT" {
+			ct := strings.ToLower(strings.TrimSpace(r.Header.Get("Content-Type")))
+			if ct != "application/json" {
+				w.WriteHeader(http.StatusUnsupportedMediaType)
+				return
+			}
+		}
+
+		h.ServeHTTP(w, r)
+	}
+
+	return http.HandlerFunc(fn)
 }
 
 func ApiAuth(a *context.App) func(*web.C, http.Handler) http.Handler {

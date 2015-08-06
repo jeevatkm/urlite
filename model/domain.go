@@ -1,6 +1,7 @@
 package model
 
 import (
+	"fmt"
 	"time"
 
 	"gopkg.in/mgo.v2"
@@ -34,4 +35,8 @@ func GetDomain(db *mgo.Database, name *string) (d *Domain, err error) {
 func GetAllDomain(db *mgo.Database) (domains []Domain, err error) {
 	err = db.C(DOMAIN_COLLECTION).Find(bson.M{}).All(&domains)
 	return
+}
+
+func (d *Domain) ComposeUrlite(id *string) string {
+	return fmt.Sprintf("%v://%v/%v", d.Scheme, d.Name, *id)
 }
