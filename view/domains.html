@@ -1,13 +1,42 @@
 {{define "domains"}}
 <div class="row">
     <div class="panel panel-default panel-pad">
-        <div class="panel-body">
+        <div class="panel-body admin-min-height">
         	<div class="row">
         		{{template "sidebar" .}}
 		        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-0 main">
-		        	<h2 class="page-header">Domains</h2>
+                    <div class="page-header domain-pg-hdr">
+		        	 <h2>Domains
+                         <div class="nav-form pull-right" style="margin-top:-5px">
+                            <button type="button" class="btn btn-default btn-sm" style="width:65px">Add</button>
+                         </div>
+                     </h2>                     
+                    </div>
 		        	<div>
-		        		I'm in Domains page
+                        <table class="table table-striped table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th># of Urlite</th>
+                                    <th>Scheme</th>
+                                    <th>Salt</th>
+                                    <th>Collection</th>
+                                    <th>Analytics Collection</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            {{range .Domains}}
+                                <tr>
+                                    <td>{{.Name}}</td>
+                                    <td>{{.Count}}</td>
+                                    <td>{{.Scheme}}</td>
+                                    <td>{{.Salt}}</td>
+                                    <td>{{.UrliteCollName}}</td>
+                                    <td>{{.UrliteStatsCollName}}</td>
+                                </tr>
+                            {{end}}
+                            </tbody>
+                        </table>
 		        	</div>
 		        </div> <!--/.main -->
         	</div>

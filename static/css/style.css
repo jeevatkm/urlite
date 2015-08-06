@@ -14,6 +14,10 @@ body {
     min-height: 550px;
 }
 
+.admin-min-height {
+    min-height: 500px;
+}
+
 .jumbotron {
     background: #fff;
     padding: 0;
@@ -127,10 +131,40 @@ body {
   }
 }
 .main .page-header {
-  margin-top: 0;
+    margin-top: 0;
 }
 
+.domain-pg-hdr {
+    margin-top: -20px !important;
+    padding-bottom: 0;
+}
 
+.btn:focus,.btn:active {
+   outline: none !important;
+}
+
+.btn-default:focus,
+.btn-default.focus {
+  color: #fff;
+  background-color: #32c75f;
+  border-color: #32c75f;
+}
+
+.btn-default:hover {
+  color: #fff;
+  background-color: #32c75f;
+  border-color: #32c75f;
+}
+
+.table-hover > tbody > tr:hover {
+  background-color: #EFFBF9;
+}
+
+thead {
+  background-color: #7C7E80;
+  color: #efefef;
+  border: 1px solid #7C7E80;
+}
 
 .footer {
     border-top: 1px solid #ccc;

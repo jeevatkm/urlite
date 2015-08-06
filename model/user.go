@@ -55,6 +55,15 @@ func AuthenticateUser(db *mgo.Database, email string, password string) (user *Us
 	return
 }
 
+func GetUserCount(db *mgo.Database) int {
+	cnt, err := db.C(USER_COLLECTION).Count()
+	if err != nil {
+		log.Errorf("Unable to get user count: %q", err)
+		return 0
+	}
+	return cnt
+}
+
 func GetUserById(db *mgo.Database, id bson.ObjectId) (user *User, err error) {
 	err = db.C(USER_COLLECTION).FindId(id).One(&user)
 	return

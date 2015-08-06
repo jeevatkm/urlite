@@ -4,15 +4,20 @@ import (
 	"net/http"
 
 	"github.com/jeevatkm/urlite/context"
+	"github.com/jeevatkm/urlite/model"
 	"github.com/zenazn/goji/web"
 
 	. "github.com/jeevatkm/urlite/controller"
 )
 
 func Domains(a *context.App, c web.C, r *http.Request) (*Response, error) {
-	content, err := a.Parse("domains", Data{
+	domains, _ := model.GetAllDomain(a.DB())
+	AddData(c, Data{
 		"IsDomains": true,
+		"Domains":   domains,
 	})
+
+	content, err := a.Parse("domains", c.Env)
 	code := CheckError(err)
 
 	AddData(c, Data{

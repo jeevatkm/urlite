@@ -10,9 +10,11 @@ import (
 )
 
 func Dashboard(a *context.App, c web.C, r *http.Request) (*Response, error) {
-	content, err := a.Parse("dashboard", Data{
+	AddData(c, Data{
 		"IsDashboard": true,
 	})
+
+	content, err := a.Parse("dashboard", c.Env)
 	code := CheckError(err)
 
 	AddData(c, Data{
