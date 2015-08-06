@@ -45,7 +45,7 @@ func LoginPost(a *context.App, c web.C, r *http.Request) (*Response, error) {
 
 	if user.IsAdmin() {
 		log.Debugf("Admin logged in '%s'", user.Email)
-		return &Response{Redirect: "/admin/", Code: http.StatusFound}, nil
+		return &Response{Redirect: "/admin/dashboard", Code: http.StatusFound}, nil
 	}
 
 	return &Response{Redirect: "/", Code: http.StatusSeeOther}, nil
