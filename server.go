@@ -58,10 +58,10 @@ func main() {
 	ar.Use(gm.SubRouter)
 	ar.Use(middleware.AutomaticOptions)
 	ar.Use(middleware.AdminAuth(context))
-	ar.Get("/", ctr.Handle{context, web.Dashboard})
+	ar.Get("/dashboard", ctr.Handle{context, web.Dashboard})
 
 	goji.Handle("/admin/*", ar)
-	goji.Get("/admin", http.RedirectHandler("/admin/", 301))
+	goji.Get("/admin", http.RedirectHandler("/admin/dashboard", 301))
 
 	/*
 	 * API routes
