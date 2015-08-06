@@ -60,6 +60,7 @@ func main() {
 	ar.Use(middleware.AdminAuth(context))
 	ar.Get("/", http.RedirectHandler("/admin/dashboard", 301))
 	ar.Get("/dashboard", ctr.Handle{context, web.Dashboard})
+	ar.Get("/domains", ctr.Handle{context, web.Domains})
 
 	goji.Handle("/admin/*", ar)
 	goji.Get("/admin", http.RedirectHandler("/admin/dashboard", 301))

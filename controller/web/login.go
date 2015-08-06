@@ -21,7 +21,7 @@ func Login(a *context.App, c web.C, r *http.Request) (*Response, error) {
 
 	AddData(c, Data{
 		"IsLogin": true,
-		"Title":   "Login - urlite",
+		"Title":   "Login | urlite",
 		"Content": ToHTML(content),
 	})
 

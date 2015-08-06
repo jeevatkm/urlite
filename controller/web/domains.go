@@ -9,13 +9,14 @@ import (
 	. "github.com/jeevatkm/urlite/controller"
 )
 
-func Home(a *context.App, c web.C, r *http.Request) (*Response, error) {
-	content, err := a.Parse("home", nil)
+func Domains(a *context.App, c web.C, r *http.Request) (*Response, error) {
+	content, err := a.Parse("domains", Data{
+		"IsDomains": true,
+	})
 	code := CheckError(err)
 
 	AddData(c, Data{
-		"IsHome":  true,
-		"Title":   "Home | urlite",
+		"Title":   "Domains | urlite",
 		"Content": ToHTML(content),
 	})
 
