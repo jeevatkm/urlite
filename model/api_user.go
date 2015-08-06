@@ -13,10 +13,13 @@ type ApiUser struct {
 	ID           bson.ObjectId `bson:"_id,omitempty"`
 	AppName      string        `bson:"app_name"`
 	Bearer       string        `bson:"bearer"`
+	Domains      []string      `bson:"domains"`
 	LastAccessed time.Time     `bson:"last_accessed"`
 	IPAddress    string        `bson:"ip_address"`
-	CreateTime   time.Time     `bson:"ct"`
-	UpdateTime   time.Time     `bson:"ut"`
+	CreatedBy    bson.ObjectId `bson:"cb"`
+	CreatedTime  time.Time     `bson:"ct"`
+	UpdatedBy    bson.ObjectId `bson:"ub"`
+	UpdatedTime  time.Time     `bson:"ut"`
 }
 
 func CreateApiUser(db *mgo.Database, au *ApiUser) error {

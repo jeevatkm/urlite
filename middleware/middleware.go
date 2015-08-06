@@ -147,6 +147,7 @@ func ApiAuth(a *context.App) func(*web.C, http.Handler) http.Handler {
 			// Update last access
 			au.IPAddress = r.RemoteAddr
 			au.LastAccessed = time.Now()
+			c.Env["ApiUser"] = au
 			go func(db *mgo.Database, u *model.ApiUser) {
 				err := model.UpdateApiUserLastAccess(db, u)
 				if err != nil {

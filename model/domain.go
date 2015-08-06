@@ -18,8 +18,10 @@ type Domain struct {
 	Count               int64         `bson:"count"`
 	UrliteCollName      string        `bson:"ul_coll_name"`
 	UrliteStatsCollName string        `bson:"ulst_coll_name"`
-	CreateTime          time.Time     `bson:"ct"`
-	UpdateTime          time.Time     `bson:"ut"`
+	CreatedBy           bson.ObjectId `bson:"cb"`
+	CreatedTime         time.Time     `bson:"ct"`
+	UpdatedBy           bson.ObjectId `bson:"ub"`
+	UpdatedTime         time.Time     `bson:"ut"`
 }
 
 func CreateDomain(db *mgo.Database, d *Domain) error {

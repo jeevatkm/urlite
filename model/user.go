@@ -18,8 +18,10 @@ type User struct {
 	Email       string        `bson:"email"`
 	Password    string        `bson:"password"`
 	Permissions []string      `bson:"permissions"`
-	CreateTime  time.Time     `bson:"ct"`
-	UpdateTime  time.Time     `bson:"ut"`
+	CreatedBy   bson.ObjectId `bson:"cb"`
+	CreatedTime time.Time     `bson:"ct"`
+	UpdatedBy   bson.ObjectId `bson:"ub"`
+	UpdatedTime time.Time     `bson:"ut"`
 }
 
 // func init() {

@@ -53,11 +53,13 @@ func Shorten(a *context.App, c web.C, r *http.Request) (*Response, error) {
 	}
 
 	urlite = domain.ComposeUrlite(&urliteId)
+	au := getApiUser(c)
 
 	ul := &model.Urlite{ID: urliteId,
-		Urlite:     urlite,
-		LongUrl:    strings.TrimSpace(shortReq.LongUrl),
-		CreateTime: time.Now()}
+		Urlite:      urlite,
+		LongUrl:     strings.TrimSpace(shortReq.LongUrl),
+		CreatedBy:   au.ID,
+		CreatedTime: time.Now()}
 	err = model.CreateUrlite(a.DB(), domain.UrliteCollName, ul)
 	if err != nil {
 		log.Errorf("Unable to insert new urlite into db: %q", err)
