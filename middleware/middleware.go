@@ -23,6 +23,7 @@ func AppInfo(a *context.App) func(*web.C, http.Handler) http.Handler {
 			c.Env["AppVersion"] = context.VERSION
 			c.Env["OrgName"] = a.Config.Owner.Org
 			c.Env["DomainCount"] = len(a.Domains)
+			c.Env["AllLinkCount"] = a.AllLinkCount()
 
 			h.ServeHTTP(w, r)
 		}

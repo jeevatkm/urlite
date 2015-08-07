@@ -177,6 +177,27 @@ func InitContext(configFile *string) (ac *App) {
 		"toCommaStr": func(v []string) string {
 			return strings.Join(v, ", ")
 		},
+		"add": func(a, b interface{}) (interface{}, error) {
+			av := reflect.ValueOf(a)
+			bv := reflect.ValueOf(b)
+
+			if av.Kind() != bv.Kind() {
+				return nil, errors.New("Different kinds, can't add them.")
+			}
+
+			switch av.Kind() {
+			case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+				return av.Int() + bv.Int(), nil
+			case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+				return av.Uint() + bv.Uint(), nil
+			case reflect.Float32, reflect.Float64:
+				return av.Float() + bv.Float(), nil
+			// case reflect.String:
+			//     return av.String() + bv.String(), nil
+			default:
+				return nil, errors.New("Type does not support addition.")
+			}
+		},
 	}
 
 	ac.Template = template.Must(template.New("").Funcs(funcMap).ParseFiles(templates...))
@@ -262,11 +283,20 @@ func (a *App) GetDomainLinkNum(name string) (n int64) {
 	dmutex.Lock()
 	defer dmutex.Unlock()
 
-	n = a.Domains[name].Count
-	log.Infof("n: %d", n)
-	a.Domains[name].Count++
-	log.Infof("d.Count: %d", a.Domains[name].Count)
+	n = a.Domains[name].LinkCount
+	log.Debugf("New generated link count: %d", n)
+	a.Domains[name].LinkCount++
+	log.Debugf("Next new generate link count: %d", a.Domains[name].LinkCount)
 	return
+}
+
+func (a *App) IncDomainCustomLink(name string) {
+	dmutex.Lock()
+	defer dmutex.Unlock()
+
+	log.Debugf("Current Custom link count: %d", a.Domains[name].CustomLinkCount)
+	a.Domains[name].CustomLinkCount++
+	log.Debugf("New custom link count: %d", a.Domains[name].CustomLinkCount)
 }
 
 func (a *App) GetUrliteID(dn string, n int64) (ul string, err error) {
@@ -276,18 +306,26 @@ func (a *App) GetUrliteID(dn string, n int64) (ul string, err error) {
 
 func (a *App) AddDomain(d model.Domain) {
 	a.Domains[d.Name] = &model.Domain{ID: d.ID,
-		Name:          d.Name,
-		Scheme:        d.Scheme,
-		Salt:          d.Salt,
-		Count:         d.Count,
-		CollName:      d.CollName,
-		StatsCollName: d.StatsCollName}
+		Name:            d.Name,
+		Scheme:          d.Scheme,
+		Salt:            d.Salt,
+		LinkCount:       d.LinkCount,
+		CustomLinkCount: d.CustomLinkCount,
+		CollName:        d.CollName,
+		StatsCollName:   d.StatsCollName}
 
 	// Initializing Hash generater for domain
 	hd := hash.NewData()
 	hd.Salt = d.Salt
 	hd.MinLength = 5
 	a.HashGen[d.Name] = hash.NewWithData(hd)
+}
+
+func (a *App) AllLinkCount() (al int64) {
+	for _, v := range a.Domains {
+		al += v.LinkCount + v.CustomLinkCount
+	}
+	return
 }
 
 /*

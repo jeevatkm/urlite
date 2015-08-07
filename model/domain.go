@@ -11,18 +11,19 @@ import (
 const DOMAIN_COLLECTION = "domains"
 
 type Domain struct {
-	ID            bson.ObjectId `bson:"_id,omitempty"`
-	Name          string        `bson:"name"`
-	Scheme        string        `bson:"scheme"`
-	Salt          string        `bson:"salt"`
-	Count         int64         `bson:"count"`
-	IsDefault     bool          `bson:"is_default"`
-	CollName      string        `bson:"coll_name"`
-	StatsCollName string        `bson:"stats_coll_name"`
-	CreatedBy     bson.ObjectId `bson:"cb"`
-	CreatedTime   time.Time     `bson:"ct"`
-	UpdatedBy     bson.ObjectId `bson:"ub"`
-	UpdatedTime   time.Time     `bson:"ut"`
+	ID              bson.ObjectId `bson:"_id,omitempty"`
+	Name            string        `bson:"name"`
+	Scheme          string        `bson:"scheme"`
+	Salt            string        `bson:"salt"`
+	LinkCount       int64         `bson:"link_cnt"`
+	CustomLinkCount int64         `bson:"custom_link_cnt"`
+	IsDefault       bool          `bson:"is_default"`
+	CollName        string        `bson:"coll_name"`
+	StatsCollName   string        `bson:"stats_coll_name"`
+	CreatedBy       bson.ObjectId `bson:"cb"`
+	CreatedTime     time.Time     `bson:"ct"`
+	UpdatedBy       bson.ObjectId `bson:"ub"`
+	UpdatedTime     time.Time     `bson:"ut"`
 }
 
 func CreateDomain(db *mgo.Database, d *Domain) error {
@@ -52,7 +53,7 @@ func GetDefaultDomain(db *mgo.Database) (d *Domain, err error) {
 
 func UpdateDomainLinkCount(db *mgo.Database, d *Domain) (err error) {
 	sel := bson.M{"_id": d.ID}
-	update := bson.M{"$set": bson.M{"count": d.Count, "ub": "system", "ut": time.Now()}}
+	update := bson.M{"$set": bson.M{"link_cnt": d.LinkCount, "custom_link_cnt": d.CustomLinkCount, "ub": "system", "ut": time.Now()}}
 	err = db.C(DOMAIN_COLLECTION).Update(sel, update)
 	return
 }

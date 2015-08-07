@@ -39,6 +39,7 @@ func Shorten(a *context.App, c web.C, r *http.Request) (*Response, error) {
 			log.Errorf("Given custom name is unavailable: %v", err)
 			return errConflict("Given custom name [" + urliteId + "] is unavailable"), nil
 		}
+		a.IncDomainCustomLink(domain.Name)
 	} else { // Hash generate mode
 		log.Debug("Hash generate mode")
 

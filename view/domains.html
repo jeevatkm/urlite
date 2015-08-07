@@ -16,19 +16,21 @@
                         <table class="table table-striped table-hover">
                             <thead>
                                 <tr>
+                                    <th style="width:3%">Scheme</th>
                                     <th style="width:15%">Name</th>
-                                    <th style="width:15%"># of Urlite</th>
-                                    <th style="width:5%">Scheme</th>
-                                    <th style="width:30%">Salt</th>
+                                    <th style="width:15%">Total Urlite</th>
+                                    <th style="width:15%">Urlite</th>
+                                    <th style="width:15%">Custom Urlite</th>
                                 </tr>
                             </thead>
                             <tbody>
                             {{range .Domains}}
                                 <tr>
-                                    <td>{{.Name}}</td>
-                                    <td>{{.Count}}</td>
                                     <td>{{.Scheme}}</td>
-                                    <td>{{.Salt}}</td>
+                                    <td>{{.Name}}</td>
+                                    <td>{{add .LinkCount .CustomLinkCount}}</td>
+                                    <td>{{.LinkCount}}</td>
+                                    <td>{{.CustomLinkCount}}</td>
                                 </tr>
                             {{end}}
                             </tbody>

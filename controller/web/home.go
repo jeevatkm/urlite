@@ -10,7 +10,7 @@ import (
 )
 
 func Home(a *context.App, c web.C, r *http.Request) (*Response, error) {
-	content, err := a.Parse("home", nil)
+	content, err := a.Parse("home", c.Env)
 	code := CheckError(err)
 
 	AddData(c, Data{
