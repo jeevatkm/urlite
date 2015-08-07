@@ -12,16 +12,14 @@
                          </div>
                      </h2>                     
                     </div>
-		        	<div>
+		        	<div class="dcontent">
                         <table class="table table-striped table-hover">
                             <thead>
                                 <tr>
-                                    <th>Name</th>
-                                    <th># of Urlite</th>
-                                    <th>Scheme</th>
-                                    <th>Salt</th>
-                                    <th>Collection</th>
-                                    <th>Analytics Collection</th>
+                                    <th style="width:15%">Name</th>
+                                    <th style="width:15%"># of Urlite</th>
+                                    <th style="width:5%">Scheme</th>
+                                    <th style="width:30%">Salt</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -31,13 +29,11 @@
                                     <td>{{.Count}}</td>
                                     <td>{{.Scheme}}</td>
                                     <td>{{.Salt}}</td>
-                                    <td>{{.CollName}}</td>
-                                    <td>{{.StatsCollName}}</td>
                                 </tr>
                             {{end}}
                             </tbody>
                         </table>
-		        	</div>
+		        	</div><!--/.dcontent -->
 		        </div> <!--/.main -->
         	</div>
         </div> <!--/.panel-body -->

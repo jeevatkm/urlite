@@ -4,7 +4,7 @@
 		<li {{if .IsDashboard}}class="active"{{end}}>
 			<a href="/admin/dashboard">Dashboard{{if .IsDashboard}} <span class="sr-only">(current)</span>{{end}}</a>
 		</li>
-		<li><a href="#">Analytics</a></li>
+		<li><a href="#">Stats</a></li>
 	</ul>
 	<ul class="nav nav-sidebar">
 		<li {{if .IsDomains}}class="active"{{end}}>			
@@ -12,11 +12,6 @@
 		</li>
 		<li {{if .IsUsers}}class="active"{{end}}>			
 			<a href="/admin/users">Users{{if .IsUsers}} <span class="sr-only">(current)</span>{{end}}<span class="badge pull-right">{{.UserCount}}</span></a>
-		</li>
-	</ul>
-	<ul class="nav nav-sidebar">
-		<li {{if .IsReports}}class="active"{{end}}>
-			<a href="#">Reports{{if .IsReports}} <span class="sr-only">(current)</span>{{end}}</a>
 		</li>
 	</ul>
 </div> <!--/.sidebar -->

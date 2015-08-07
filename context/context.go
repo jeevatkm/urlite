@@ -9,8 +9,10 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"reflect"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/BurntSushi/toml"
 	"github.com/gorilla/sessions"
@@ -134,6 +136,44 @@ func InitContext(configFile *string) (ac *App) {
 	funcMap := template.FuncMap{
 		"safeHTML": func(s string) template.HTML {
 			return template.HTML(s)
+		},
+		"isset": func(a interface{}, key interface{}) bool {
+			av := reflect.ValueOf(a)
+			kv := reflect.ValueOf(key)
+
+			switch av.Kind() {
+			case reflect.Array, reflect.Chan, reflect.Slice:
+				if int64(av.Len()) > kv.Int() {
+					return true
+				}
+			case reflect.Map:
+				if kv.Type() == av.Type().Key() {
+					return av.MapIndex(kv).IsValid()
+				}
+			}
+
+			return false
+		},
+		"safeCSS": func(text string) template.CSS {
+			return template.CSS(text)
+		},
+		"safeURL": func(text string) template.URL {
+			return template.URL(text)
+		},
+		"getEnv": func() string {
+			return ac.Config.RunMode
+		},
+		"frdlyDateTime": func(t time.Time) string {
+			if t.IsZero() {
+				return ""
+			}
+			if t.Year() == time.Now().Year() {
+				return t.Format("Jan 2, 3:04:05 pm")
+			}
+			return t.Format("Jan 2, 2006, 3:04:05 pm")
+		},
+		"toCommaStr": func(v []string) string {
+			return strings.Join(v, ", ")
 		},
 	}
 

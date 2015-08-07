@@ -134,7 +134,7 @@ body {
     margin-top: 0;
 }
 
-.domain-pg-hdr {
+.domain-pg-hdr, .user-pg-hdr {
     margin-top: -20px !important;
     padding-bottom: 0;
 }
@@ -167,7 +167,7 @@ body {
 
 thead {
   background-color: #7C7E80;
-  color: #efefef;
+  color: #F3F3F3;
   border: 1px solid #7C7E80;
 }
 
