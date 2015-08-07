@@ -8,6 +8,7 @@ import (
 
 	"github.com/gorilla/sessions"
 	"github.com/jeevatkm/urlite/context"
+	"github.com/jeevatkm/urlite/model"
 	"github.com/zenazn/goji/web"
 
 	log "github.com/Sirupsen/logrus"
@@ -119,6 +120,10 @@ func isApiRequest(c web.C) bool {
 
 func GetSession(c web.C) *sessions.Session {
 	return c.Env["Session"].(*sessions.Session)
+}
+
+func GetUser(c web.C) *model.User {
+	return c.Env["User"].(*model.User)
 }
 
 func ToHTML(s string) template.HTML {

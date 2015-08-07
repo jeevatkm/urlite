@@ -11,17 +11,18 @@ import (
 const DOMAIN_COLLECTION = "domains"
 
 type Domain struct {
-	ID                  bson.ObjectId `bson:"_id,omitempty"`
-	Name                string        `bson:"name"`
-	Scheme              string        `bson:"scheme"`
-	Salt                string        `bson:"salt"`
-	Count               int64         `bson:"count"`
-	UrliteCollName      string        `bson:"ul_coll_name"`
-	UrliteStatsCollName string        `bson:"ulst_coll_name"`
-	CreatedBy           bson.ObjectId `bson:"cb"`
-	CreatedTime         time.Time     `bson:"ct"`
-	UpdatedBy           bson.ObjectId `bson:"ub"`
-	UpdatedTime         time.Time     `bson:"ut"`
+	ID            bson.ObjectId `bson:"_id,omitempty"`
+	Name          string        `bson:"name"`
+	Scheme        string        `bson:"scheme"`
+	Salt          string        `bson:"salt"`
+	Count         int64         `bson:"count"`
+	IsDefault     bool          `bson:"is_default"`
+	CollName      string        `bson:"coll_name"`
+	StatsCollName string        `bson:"stats_coll_name"`
+	CreatedBy     bson.ObjectId `bson:"cb"`
+	CreatedTime   time.Time     `bson:"ct"`
+	UpdatedBy     bson.ObjectId `bson:"ub"`
+	UpdatedTime   time.Time     `bson:"ut"`
 }
 
 func CreateDomain(db *mgo.Database, d *Domain) error {
@@ -36,6 +37,11 @@ func GetDomain(db *mgo.Database, name *string) (d *Domain, err error) {
 
 func GetAllDomain(db *mgo.Database) (domains []Domain, err error) {
 	err = db.C(DOMAIN_COLLECTION).Find(bson.M{}).All(&domains)
+	return
+}
+
+func GetDefaultDomain(db *mgo.Database) (d *Domain, err error) {
+	err = db.C(DOMAIN_COLLECTION).Find(bson.M{"is_default": true}).One(&d)
 	return
 }
 

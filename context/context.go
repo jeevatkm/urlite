@@ -228,12 +228,12 @@ func (a *App) GetUrliteID(dn string, n int64) (ul string, err error) {
 
 func (a *App) AddDomain(d model.Domain) {
 	a.Domains[d.Name] = &model.Domain{ID: d.ID,
-		Name:                d.Name,
-		Scheme:              d.Scheme,
-		Salt:                d.Salt,
-		Count:               d.Count,
-		UrliteCollName:      d.UrliteCollName,
-		UrliteStatsCollName: d.UrliteStatsCollName}
+		Name:          d.Name,
+		Scheme:        d.Scheme,
+		Salt:          d.Salt,
+		Count:         d.Count,
+		CollName:      d.CollName,
+		StatsCollName: d.StatsCollName}
 
 	// Initializing Hash generater for domain
 	hd := hash.NewData()

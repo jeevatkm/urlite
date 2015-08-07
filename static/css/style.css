@@ -139,6 +139,11 @@ body {
     padding-bottom: 0;
 }
 
+.nav-sidebar > .active > a > .badge {
+  color: #337ab7;
+  background-color: #fff;
+}
+
 .btn:focus,.btn:active {
    outline: none !important;
 }

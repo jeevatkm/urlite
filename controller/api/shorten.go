@@ -34,7 +34,7 @@ func Shorten(a *context.App, c web.C, r *http.Request) (*Response, error) {
 	if len(urliteId) > 0 { // Custom name mode
 		log.Debug("Custom name mode")
 
-		exists, _ := model.GetUrlite(a.DB(), domain.UrliteCollName, &urliteId)
+		exists, _ := model.GetUrlite(a.DB(), domain.CollName, &urliteId)
 		if exists != nil {
 			log.Errorf("Given custom name is unavailable: %v", err)
 			return errConflict("Given custom name [" + urliteId + "] is unavailable"), nil
@@ -53,14 +53,14 @@ func Shorten(a *context.App, c web.C, r *http.Request) (*Response, error) {
 	}
 
 	urlite = domain.ComposeUrlite(&urliteId)
-	au := getApiUser(c)
+	u := GetUser(c)
 
 	ul := &model.Urlite{ID: urliteId,
 		Urlite:      urlite,
 		LongUrl:     strings.TrimSpace(shortReq.LongUrl),
-		CreatedBy:   au.ID,
+		CreatedBy:   u.ID,
 		CreatedTime: time.Now()}
-	err = model.CreateUrlite(a.DB(), domain.UrliteCollName, ul)
+	err = model.CreateUrlite(a.DB(), domain.CollName, ul)
 	if err != nil {
 		log.Errorf("Unable to insert new urlite into db: %q", err)
 		return errGenerateUrlite(), nil

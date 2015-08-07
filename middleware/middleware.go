@@ -132,32 +132,32 @@ func ApiAuth(a *context.App) func(*web.C, http.Handler) http.Handler {
 		fn := func(w http.ResponseWriter, r *http.Request) {
 			auth := r.Header.Get("Authorization")
 			if !strings.HasPrefix(auth, "Bearer ") {
-				log.Error("API User bearer is not provided")
+				log.Error("User bearer is not provided")
 				authRequired(w)
 				return
 			}
 
 			// Validating Bearer
 			bearer := auth[7:]
-			au, err := model.GetApiUserByBearer(a.DB(), &bearer)
+			u, err := model.GetUserByBearer(a.DB(), &bearer)
 			if err != nil {
-				log.Errorf("API User is not exists for bearer '%v', error: %v", bearer, err)
+				log.Errorf("User is not exists for bearer '%v', error: %v", bearer, err)
 				authRequired(w)
 				return
 			}
 
-			// Update last access
-			au.IPAddress = r.RemoteAddr
-			au.LastAccessed = time.Now()
-			c.Env["ApiUser"] = au
-			go func(db *mgo.Database, u *model.ApiUser) {
-				err := model.UpdateApiUserLastAccess(db, u)
+			// Update last api access
+			u.ApiIPAddress = r.RemoteAddr
+			u.LastApiAccessed = time.Now()
+			c.Env["User"] = u
+			go func(db *mgo.Database, u *model.User) {
+				err := model.UpdateUserLastApiAccess(db, u)
 				if err != nil {
-					log.Errorf("Unable to update last access for api user '%v'", u.ID.Hex())
+					log.Errorf("Unable to update last api access for user '%v'", u.ID.Hex())
 				} else {
-					log.Debugf("Last access update completed for '%v'", u.ID.Hex())
+					log.Debugf("Last api access update completed for '%v'", u.ID.Hex())
 				}
-			}(a.DB(), au)
+			}(a.DB(), u)
 
 			h.ServeHTTP(w, r)
 		}
