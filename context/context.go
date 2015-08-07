@@ -31,6 +31,7 @@ const (
 
 var (
 	dmutex sync.RWMutex
+	dbSync *time.Ticker
 )
 
 type App struct {
@@ -64,9 +65,10 @@ type http struct {
 }
 
 type database struct {
-	Type   string
-	Hosts  string
-	DBName string `toml:"db_name"`
+	Type             string
+	Hosts            string
+	DBName           string `toml:"db_name"`
+	LinkSyncInternal int    `toml:"sync_link_num_interval"`
 }
 
 type cookie struct {
@@ -192,6 +194,8 @@ func InitContext(configFile *string) (ac *App) {
 	ac.HashGen = map[string]*hash.HashID{}
 	ac.loadDomains()
 
+	ac.startSyncTasks()
+
 	return
 }
 
@@ -207,6 +211,10 @@ func (a *App) IsProdMode() bool {
 }
 
 func (a *App) Close() {
+	a.syncDomainCountToDB()
+
+	a.stopSyncTasks()
+
 	log.Info("Application is cleaning up...")
 
 	if a.DBSession != nil {
@@ -297,4 +305,33 @@ func (a *App) loadDomains() {
 	}
 
 	log.Infof("%d domains loaded and it's hash generater have been initialized", len(a.Domains))
+}
+
+func (a *App) startSyncTasks() {
+	dbSync = time.NewTicker(time.Minute * time.Duration(a.Config.DB.LinkSyncInternal))
+
+	// Listening for channel input
+	go func(aa *App) {
+		for {
+			select {
+			case <-dbSync.C:
+				aa.syncDomainCountToDB()
+			}
+		}
+	}(a)
+}
+
+func (a *App) stopSyncTasks() {
+	dbSync.Stop()
+}
+
+func (a *App) syncDomainCountToDB() {
+	log.Infof("Starting Domain link count sync at %v", time.Now())
+	for _, v := range a.Domains {
+		err := model.UpdateDomainLinkCount(a.DB(), v)
+		if err != nil {
+			log.Errorf("Error occurred while syncing domain count for %v and error is %q", v.Name, err)
+		}
+	}
+	log.Infof("Completed Domain link count sync at %v", time.Now())
 }

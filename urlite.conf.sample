@@ -19,7 +19,7 @@ secure     = false
 type	 = "mongo"
 hosts	 = "localhost:27017"	# List of Comma seperated host:port values
 db_name	 = "urlite"
-sync_link_num_interval = 3      # In minutes
+sync_link_num_interval = 4      # In minutes
 
 [csrf]
 key    = "csrf_token"

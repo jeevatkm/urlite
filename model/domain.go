@@ -35,6 +35,11 @@ func GetDomain(db *mgo.Database, name *string) (d *Domain, err error) {
 	return
 }
 
+func GetDomainById(db *mgo.Database, id bson.ObjectId) (d *Domain, err error) {
+	err = db.C(DOMAIN_COLLECTION).FindId(id).One(&d)
+	return
+}
+
 func GetAllDomain(db *mgo.Database) (domains []Domain, err error) {
 	err = db.C(DOMAIN_COLLECTION).Find(bson.M{}).All(&domains)
 	return
@@ -42,6 +47,13 @@ func GetAllDomain(db *mgo.Database) (domains []Domain, err error) {
 
 func GetDefaultDomain(db *mgo.Database) (d *Domain, err error) {
 	err = db.C(DOMAIN_COLLECTION).Find(bson.M{"is_default": true}).One(&d)
+	return
+}
+
+func UpdateDomainLinkCount(db *mgo.Database, d *Domain) (err error) {
+	sel := bson.M{"_id": d.ID}
+	update := bson.M{"$set": bson.M{"count": d.Count, "ub": "system", "ut": time.Now()}}
+	err = db.C(DOMAIN_COLLECTION).Update(sel, update)
 	return
 }
 
