@@ -1,6 +1,7 @@
 package context
 
 import (
+	"strconv"
 	"bytes"
 	"crypto/sha256"
 	"encoding/gob"
@@ -41,6 +42,7 @@ type App struct {
 	DBSession *mgo.Session
 	Domains   map[string]*model.Domain
 	HashGen   map[string]*hash.HashID
+	LinkState map[string]bool
 }
 
 type Configuration struct {
@@ -198,6 +200,34 @@ func InitContext(configFile *string) (ac *App) {
 				return nil, errors.New("Type does not support addition.")
 			}
 		},
+		"num2str": func(n int64, sep rune) string { 
+		    s := strconv.FormatInt(n, 10)
+
+		    startOffset := 0
+		    var buff bytes.Buffer
+		    if n < 0 {
+		        startOffset = 1
+		        buff.WriteByte('-')
+		    }
+
+		    l := len(s)
+		    commaIndex := 3 - ((l - startOffset) % 3) 
+		    if (commaIndex == 3) {
+		        commaIndex = 0
+		    }
+
+		    for i := startOffset; i < l; i++ {
+		        if (commaIndex == 3) {
+		            buff.WriteRune(sep)
+		            commaIndex = 0
+		        }
+		        commaIndex++
+
+		        buff.WriteByte(s[i])
+		    }
+
+		    return buff.String()
+		},
 	}
 
 	ac.Template = template.Must(template.New("").Funcs(funcMap).ParseFiles(templates...))
@@ -213,6 +243,7 @@ func InitContext(configFile *string) (ac *App) {
 
 	ac.Domains = map[string]*model.Domain{}
 	ac.HashGen = map[string]*hash.HashID{}
+	ac.LinkState = map[string]bool{}
 	ac.loadDomains()
 
 	ac.startSyncTasks()
@@ -286,6 +317,7 @@ func (a *App) GetDomainLinkNum(name string) (n int64) {
 	n = a.Domains[name].LinkCount
 	log.Debugf("New generated link count: %d", n)
 	a.Domains[name].LinkCount++
+	a.LinkState[name] = true
 	log.Debugf("Next new generate link count: %d", a.Domains[name].LinkCount)
 	return
 }
@@ -296,6 +328,7 @@ func (a *App) IncDomainCustomLink(name string) {
 
 	log.Debugf("Current Custom link count: %d", a.Domains[name].CustomLinkCount)
 	a.Domains[name].CustomLinkCount++
+	a.LinkState[name] = true
 	log.Debugf("New custom link count: %d", a.Domains[name].CustomLinkCount)
 }
 
@@ -319,6 +352,9 @@ func (a *App) AddDomain(d model.Domain) {
 	hd.Salt = d.Salt
 	hd.MinLength = 5
 	a.HashGen[d.Name] = hash.NewWithData(hd)
+
+	// Initial linkstate for domain
+	a.LinkState[d.Name] = false
 }
 
 func (a *App) AllLinkCount() (al int64) {
@@ -365,11 +401,20 @@ func (a *App) stopSyncTasks() {
 
 func (a *App) syncDomainCountToDB() {
 	log.Infof("Starting Domain link count sync at %v", time.Now())
-	for _, v := range a.Domains {
-		err := model.UpdateDomainLinkCount(a.DB(), v)
-		if err != nil {
-			log.Errorf("Error occurred while syncing domain count for %v and error is %q", v.Name, err)
+
+	for k, v := range a.LinkState {
+		if v {
+			log.Infof("Syncing domain: %v", k)
+			err := model.UpdateDomainLinkCount(a.DB(), a.Domains[k])
+			if err != nil {
+				log.Errorf("Error occurred while syncing domain count for %v and error is %q", k, err)
+			}
+
+			a.LinkState[k] = false
+		} else {
+			log.Infof("Skipping sync domain: %v", k)
 		}
 	}
+
 	log.Infof("Completed Domain link count sync at %v", time.Now())
 }

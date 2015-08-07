@@ -28,9 +28,10 @@
                                 <tr>
                                     <td>{{.Scheme}}</td>
                                     <td>{{.Name}}</td>
-                                    <td>{{add .LinkCount .CustomLinkCount}}</td>
-                                    <td>{{.LinkCount}}</td>
-                                    <td>{{.CustomLinkCount}}</td>
+                                    {{$total := add .LinkCount .CustomLinkCount}}
+                                    <td>{{num2str $total ','}}</td>
+                                    <td>{{num2str .LinkCount ','}}</td>
+                                    <td>{{num2str .CustomLinkCount ','}}</td>
                                 </tr>
                             {{end}}
                             </tbody>
