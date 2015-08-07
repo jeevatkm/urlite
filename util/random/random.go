@@ -2,19 +2,43 @@ package random
 
 import (
 	"crypto/rand"
-	"fmt"
+	"encoding/base64"
 
 	log "github.com/Sirupsen/logrus"
 )
 
-// Reference: http://stackoverflow.com/a/25736155/1343356
-func Salt() string {
-	b := make([]byte, 16)
-	_, err := rand.Read(b)
+func SimpleSalt() string {
+	s, err := GenerateRandomString(16) // 24 byte base64 encode output
 	if err != nil {
-		log.Errorf("Error occurred while generating random string: ", err)
+		log.Errorf("Error occurred while simple salt random: ", err)
 		return ""
 	}
 
-	return fmt.Sprintf("%X-%X-%X-%X-%X", b[0:4], b[4:6], b[6:8], b[8:10], b[10:])
+	return s
+}
+
+func GenerateBearerToken() {
+	t, err := GenerateRandomString(44) // 60 byte base64 encode output
+	if err != nil {
+		log.Errorf("Error occurred while generating bearer token: ", err)
+		return ""
+	}
+
+	return t
+}
+
+func GenerateRandomBytes(n int) ([]byte, error) {
+	b := make([]byte, n)
+	_, err := rand.Read(b)
+	// Note that err == nil only if we read len(b) bytes.
+	if err != nil {
+		return nil, err
+	}
+
+	return b, nil
+}
+
+func GenerateRandomString(s int) (string, error) {
+	b, err := GenerateRandomBytes(s)
+	return base64.URLEncoding.EncodeToString(b), err
 }

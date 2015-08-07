@@ -1,6 +1,9 @@
 package util
 
 import (
+	"crypto/hmac"
+	"crypto/sha256"
+	"encoding/base64"
 	"fmt"
 
 	log "github.com/Sirupsen/logrus"
@@ -17,6 +20,13 @@ func HashPasswordWithCost(password string, cost int) string {
 		log.Errorf("Unable to hash give password string: %v", err)
 	}
 	return fmt.Sprintf(string(hashedPassword))
+}
+
+func ComputeHmac256(message string, secret string) string {
+	key := []byte(secret)
+	h := hmac.New(sha256.New, key)
+	h.Write([]byte(message))
+	return base64.StdEncoding.EncodeToString(h.Sum(nil))
 }
 
 func ComparePassword(upass, spass string) bool {
