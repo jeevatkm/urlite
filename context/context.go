@@ -1,7 +1,6 @@
 package context
 
 import (
-	"strconv"
 	"bytes"
 	"crypto/sha256"
 	"encoding/gob"
@@ -10,7 +9,6 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"reflect"
 	"strings"
 	"sync"
 	"time"
@@ -18,6 +16,7 @@ import (
 	"github.com/BurntSushi/toml"
 	"github.com/gorilla/sessions"
 	"github.com/jeevatkm/urlite/model"
+	"github.com/jeevatkm/urlite/tpl"
 
 	log "github.com/Sirupsen/logrus"
 	hash "github.com/speps/go-hashids"
@@ -123,114 +122,116 @@ func InitContext(configFile *string) (ac *App) {
 	}
 
 	// Loading HTML templates
-	var templates []string
-	fn := func(path string, f os.FileInfo, err error) error {
-		if f.IsDir() != true && strings.HasSuffix(f.Name(), ".html") {
-			templates = append(templates, path)
-		}
-		return nil
-	}
+	// var templates []string
+	// fn := func(path string, f os.FileInfo, err error) error {
+	// 	if f.IsDir() != true && strings.HasSuffix(f.Name(), ".html") {
+	// 		templates = append(templates, path)
+	// 	}
+	// 	return nil
+	// }
 
-	ferr := filepath.Walk("./view", fn)
-	if ferr != nil {
-		log.Fatalf("Unable to load templates: %v", ferr)
-		panic(ferr)
-	}
+	// ferr := filepath.Walk("./view", fn)
+	// if ferr != nil {
+	// 	log.Fatalf("Unable to load templates: %v", ferr)
+	// 	panic(ferr)
+	// }
 
-	funcMap := template.FuncMap{
-		"safeHTML": func(s string) template.HTML {
-			return template.HTML(s)
-		},
-		"isset": func(a interface{}, key interface{}) bool {
-			av := reflect.ValueOf(a)
-			kv := reflect.ValueOf(key)
+	// funcMap := template.FuncMap{
+	// 	"safeHTML": func(s string) template.HTML {
+	// 		return template.HTML(s)
+	// 	},
+	// 	"isset": func(a interface{}, key interface{}) bool {
+	// 		av := reflect.ValueOf(a)
+	// 		kv := reflect.ValueOf(key)
 
-			switch av.Kind() {
-			case reflect.Array, reflect.Chan, reflect.Slice:
-				if int64(av.Len()) > kv.Int() {
-					return true
-				}
-			case reflect.Map:
-				if kv.Type() == av.Type().Key() {
-					return av.MapIndex(kv).IsValid()
-				}
-			}
+	// 		switch av.Kind() {
+	// 		case reflect.Array, reflect.Chan, reflect.Slice:
+	// 			if int64(av.Len()) > kv.Int() {
+	// 				return true
+	// 			}
+	// 		case reflect.Map:
+	// 			if kv.Type() == av.Type().Key() {
+	// 				return av.MapIndex(kv).IsValid()
+	// 			}
+	// 		}
 
-			return false
-		},
-		"safeCSS": func(text string) template.CSS {
-			return template.CSS(text)
-		},
-		"safeURL": func(text string) template.URL {
-			return template.URL(text)
-		},
-		"getEnv": func() string {
-			return ac.Config.RunMode
-		},
-		"frdlyDateTime": func(t time.Time) string {
-			if t.IsZero() {
-				return ""
-			}
-			if t.Year() == time.Now().Year() {
-				return t.Format("Jan 2, 3:04:05 pm")
-			}
-			return t.Format("Jan 2, 2006, 3:04:05 pm")
-		},
-		"toCommaStr": func(v []string) string {
-			return strings.Join(v, ", ")
-		},
-		"add": func(a, b interface{}) (interface{}, error) {
-			av := reflect.ValueOf(a)
-			bv := reflect.ValueOf(b)
+	// 		return false
+	// 	},
+	// 	"safeCSS": func(text string) template.CSS {
+	// 		return template.CSS(text)
+	// 	},
+	// 	"safeURL": func(text string) template.URL {
+	// 		return template.URL(text)
+	// 	},
+	// 	"getEnv": func() string {
+	// 		return ac.Config.RunMode
+	// 	},
+	// 	"frdlyDateTime": func(t time.Time) string {
+	// 		if t.IsZero() {
+	// 			return ""
+	// 		}
+	// 		if t.Year() == time.Now().Year() {
+	// 			return t.Format("Jan 2, 3:04:05 pm")
+	// 		}
+	// 		return t.Format("Jan 2, 2006, 3:04:05 pm")
+	// 	},
+	// 	"toCommaStr": func(v []string) string {
+	// 		return strings.Join(v, ", ")
+	// 	},
+	// 	"add": func(a, b interface{}) (interface{}, error) {
+	// 		av := reflect.ValueOf(a)
+	// 		bv := reflect.ValueOf(b)
 
-			if av.Kind() != bv.Kind() {
-				return nil, errors.New("Different kinds, can't add them.")
-			}
+	// 		if av.Kind() != bv.Kind() {
+	// 			return nil, errors.New("Different kinds, can't add them.")
+	// 		}
 
-			switch av.Kind() {
-			case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-				return av.Int() + bv.Int(), nil
-			case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-				return av.Uint() + bv.Uint(), nil
-			case reflect.Float32, reflect.Float64:
-				return av.Float() + bv.Float(), nil
-			// case reflect.String:
-			//     return av.String() + bv.String(), nil
-			default:
-				return nil, errors.New("Type does not support addition.")
-			}
-		},
-		"num2str": func(n int64, sep rune) string { 
-		    s := strconv.FormatInt(n, 10)
+	// 		switch av.Kind() {
+	// 		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+	// 			return av.Int() + bv.Int(), nil
+	// 		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+	// 			return av.Uint() + bv.Uint(), nil
+	// 		case reflect.Float32, reflect.Float64:
+	// 			return av.Float() + bv.Float(), nil
+	// 		// case reflect.String:
+	// 		//     return av.String() + bv.String(), nil
+	// 		default:
+	// 			return nil, errors.New("Type does not support addition.")
+	// 		}
+	// 	},
+	// 	"num2str": func(n int64, sep rune) string {
+	// 	    s := strconv.FormatInt(n, 10)
 
-		    startOffset := 0
-		    var buff bytes.Buffer
-		    if n < 0 {
-		        startOffset = 1
-		        buff.WriteByte('-')
-		    }
+	// 	    startOffset := 0
+	// 	    var buff bytes.Buffer
+	// 	    if n < 0 {
+	// 	        startOffset = 1
+	// 	        buff.WriteByte('-')
+	// 	    }
 
-		    l := len(s)
-		    commaIndex := 3 - ((l - startOffset) % 3) 
-		    if (commaIndex == 3) {
-		        commaIndex = 0
-		    }
+	// 	    l := len(s)
+	// 	    commaIndex := 3 - ((l - startOffset) % 3)
+	// 	    if (commaIndex == 3) {
+	// 	        commaIndex = 0
+	// 	    }
 
-		    for i := startOffset; i < l; i++ {
-		        if (commaIndex == 3) {
-		            buff.WriteRune(sep)
-		            commaIndex = 0
-		        }
-		        commaIndex++
+	// 	    for i := startOffset; i < l; i++ {
+	// 	        if (commaIndex == 3) {
+	// 	            buff.WriteRune(sep)
+	// 	            commaIndex = 0
+	// 	        }
+	// 	        commaIndex++
 
-		        buff.WriteByte(s[i])
-		    }
+	// 	        buff.WriteByte(s[i])
+	// 	    }
 
-		    return buff.String()
-		},
-	}
+	// 	    return buff.String()
+	// 	},
+	// }
 
-	ac.Template = template.Must(template.New("").Funcs(funcMap).ParseFiles(templates...))
+	// ac.Template = template.Must(template.New("").Funcs(funcMap).ParseFiles(templates...))
+
+	ac.loadTemplates()
 
 	// Connecting Database
 	var merr error
@@ -287,6 +288,10 @@ func (a *App) DB() *mgo.Database {
 }
 
 func (a *App) Parse(name string, data interface{}) (page string, err error) {
+	if a.IsDevMode() {
+		a.loadTemplates()
+	}
+
 	var doc bytes.Buffer
 
 	err = a.Template.ExecuteTemplate(&doc, name, data)
@@ -367,6 +372,24 @@ func (a *App) AllLinkCount() (al int64) {
 /*
  * Private
  */
+func (a *App) loadTemplates() {
+	var templates []string
+	fn := func(path string, f os.FileInfo, err error) error {
+		if f.IsDir() != true && strings.HasSuffix(f.Name(), ".html") {
+			templates = append(templates, path)
+		}
+		return nil
+	}
+
+	ferr := filepath.Walk("./view", fn)
+	if ferr != nil {
+		log.Fatalf("Unable to load templates: %v", ferr)
+		panic(ferr)
+	}
+
+	a.Template = template.Must(template.New("").Funcs(tpl.FuncMap).ParseFiles(templates...))
+}
+
 func (a *App) loadDomains() {
 	domains, err := model.GetAllDomain(a.DB())
 	if err != nil {

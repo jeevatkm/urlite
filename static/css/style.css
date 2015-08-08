@@ -149,18 +149,110 @@ body {
    outline: none !important;
 }
 
-.btn-default:focus,
-.btn-default.focus {
+.btn-urlite-g {
+  color: #333;
+  background-color: #fff;
+  border-color: #ccc;
+}
+
+.btn-urlite-g:focus,
+.btn-urlite-g.focus {
   color: #fff;
   background-color: #32c75f;
   border-color: #32c75f;
 }
 
-.btn-default:hover {
+.btn-urlite-g:hover {
   color: #fff;
   background-color: #32c75f;
   border-color: #32c75f;
 }
+
+.btn-urlite-r {
+  color: #333;
+  background-color: #fff;
+  border-color: #ccc;
+}
+
+.btn-urlite-r:focus,
+.btn-urlite-r.focus {
+  color: #fff;
+  background-color: #EA2626;
+  border-color: #EA2626;
+}
+
+.btn-urlite-r:hover {
+  color: #fff;
+  background-color: #EA2626;
+  border-color: #EA2626;
+}
+
+
+/*.btn-default {
+  color: #333;
+  background-color: #fff;
+  border-color: #ccc;
+}
+.btn-default:focus,
+.btn-default.focus {
+  color: #333;
+  background-color: #e6e6e6;
+  border-color: #8c8c8c;
+}
+.btn-default:hover {
+  color: #333;
+  background-color: #e6e6e6;
+  border-color: #adadad;
+} 
+.btn-default:active,
+.btn-default.active,
+.open > .dropdown-toggle.btn-default {
+  color: #333;
+  background-color: #e6e6e6;
+  border-color: #adadad;
+}
+.btn-default:active:hover,
+.btn-default.active:hover,
+.open > .dropdown-toggle.btn-default:hover,
+.btn-default:active:focus,
+.btn-default.active:focus,
+.open > .dropdown-toggle.btn-default:focus,
+.btn-default:active.focus,
+.btn-default.active.focus,
+.open > .dropdown-toggle.btn-default.focus {
+  color: #333;
+  background-color: #d4d4d4;
+  border-color: #8c8c8c;
+}
+.btn-default:active,
+.btn-default.active,
+.open > .dropdown-toggle.btn-default {
+  background-image: none;
+}
+.btn-default.disabled,
+.btn-default[disabled],
+fieldset[disabled] .btn-default,
+.btn-default.disabled:hover,
+.btn-default[disabled]:hover,
+fieldset[disabled] .btn-default:hover,
+.btn-default.disabled:focus,
+.btn-default[disabled]:focus,
+fieldset[disabled] .btn-default:focus,
+.btn-default.disabled.focus,
+.btn-default[disabled].focus,
+fieldset[disabled] .btn-default.focus,
+.btn-default.disabled:active,
+.btn-default[disabled]:active,
+fieldset[disabled] .btn-default:active,
+.btn-default.disabled.active,
+.btn-default[disabled].active,
+fieldset[disabled] .btn-default.active {
+  background-color: #fff;
+  border-color: #ccc;
+}
+*/
+
+
 
 .table-hover > tbody > tr:hover {
   background-color: #EFFBF9;

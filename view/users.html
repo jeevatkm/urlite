@@ -30,12 +30,12 @@
                                     {{if .LastLoggedIn.IsZero}}
                                     <td>Not yet</td>
                                     {{else}}
-                                    <td>{{frdlyDateTime .LastLoggedIn}}</td>
+                                    <td>{{friendlyDateTime .LastLoggedIn}}</td>
                                     {{end}}
                                     {{if .LastApiAccessed.IsZero}}                                    
                                     <td>Not yet</td>
                                     {{else}}
-                                    <td>{{frdlyDateTime .LastApiAccessed}}</td>
+                                    <td>{{friendlyDateTime .LastApiAccessed}}</td>
                                     {{end}}
                                 </tr>
                             {{end}}
