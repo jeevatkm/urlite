@@ -104,7 +104,7 @@ func AdminAuth(a *context.App) func(*web.C, http.Handler) http.Handler {
 				}
 			} else {
 				log.Error("User not loggedin, sending to login page")
-				http.Redirect(w, r, "/login", http.StatusFound)
+				http.Redirect(w, r, "/login?rt=/admin"+r.URL.Path, http.StatusFound)
 			}
 		}
 

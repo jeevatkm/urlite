@@ -2,6 +2,7 @@ package web
 
 import (
 	"net/http"
+	"strings"
 	"time"
 
 	"gopkg.in/mgo.v2"
@@ -19,6 +20,7 @@ func Login(a *context.App, c web.C, r *http.Request) (*Response, error) {
 
 	content, err := a.Parse("login", Data{
 		"Flash": session.Flashes("authmsg"),
+		"SRT":   r.URL.Query().Get("rt"),
 	})
 	code := CheckError(err)
 
@@ -58,10 +60,18 @@ func LoginPost(a *context.App, c web.C, r *http.Request) (*Response, error) {
 		}
 	}(a.DB(), user)
 
+	rtPath := "/"
+
 	if user.IsAdmin() {
 		log.Debugf("Admin logged in '%s'", user.Email)
-		return &Response{Redirect: "/admin/dashboard", Code: http.StatusFound}, nil
+		rtPath = "/admin/dashboard"
 	}
 
-	return &Response{Redirect: "/", Code: http.StatusSeeOther}, nil
+	srt := strings.TrimSpace(r.FormValue("srt"))
+	if len(srt) > 0 {
+		log.Debugf("Found last accessed path '%s', sending over", srt)
+		rtPath = srt
+	}
+
+	return &Response{Redirect: rtPath, Code: http.StatusFound}, nil
 }
