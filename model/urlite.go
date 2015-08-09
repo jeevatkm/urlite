@@ -7,15 +7,12 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-//const URLITE_COLLECTION = "multiple since per domain"
-
 type Urlite struct {
-	ID          string        `bson:"_id,omitempty"`
-	Urlite      string        `bson:"urlite"`
-	LongUrl     string        `bson:"long_url"`
-	Password    string        `bson:"password"`
-	CreatedBy   bson.ObjectId `bson:"cb"`
-	CreatedTime time.Time     `bson:"ct"`
+	ID          string    `bson:"_id,omitempty"`
+	Urlite      string    `bson:"urlite"`
+	LongUrl     string    `bson:"long_url"`
+	CreatedBy   string    `bson:"cb"`
+	CreatedTime time.Time `bson:"ct"`
 }
 
 func CreateUrlite(db *mgo.Database, coll string, ul *Urlite) error {

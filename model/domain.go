@@ -20,14 +20,15 @@ type Domain struct {
 	IsDefault       bool          `bson:"is_default"`
 	CollName        string        `bson:"coll_name"`
 	StatsCollName   string        `bson:"stats_coll_name"`
-	CreatedBy       bson.ObjectId `bson:"cb"`
+	CreatedBy       string        `bson:"cb"`
 	CreatedTime     time.Time     `bson:"ct"`
-	UpdatedBy       bson.ObjectId `bson:"ub"`
+	UpdatedBy       string        `bson:"ub"`
 	UpdatedTime     time.Time     `bson:"ut"`
 }
 
 func CreateDomain(db *mgo.Database, d *Domain) error {
 	d.ID = bson.NewObjectId()
+	d.CreatedTime = time.Now()
 	return db.C(DOMAIN_COLLECTION).Insert(d)
 }
 

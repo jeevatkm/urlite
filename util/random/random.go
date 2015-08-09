@@ -7,7 +7,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 )
 
-func SimpleSalt() string {
+func DomainSalt() string {
 	s, err := GenerateRandomString(16) // 24 byte base64 encode output
 	if err != nil {
 		log.Errorf("Error occurred while simple salt random: ", err)
@@ -17,7 +17,7 @@ func SimpleSalt() string {
 	return s
 }
 
-func GenerateBearerToken() {
+func GenerateBearerToken() string {
 	t, err := GenerateRandomString(44) // 60 byte base64 encode output
 	if err != nil {
 		log.Errorf("Error occurred while generating bearer token: ", err)

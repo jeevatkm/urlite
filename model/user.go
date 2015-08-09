@@ -25,9 +25,9 @@ type User struct {
 	LoginIPAddress  string        `bson:"login_ip_address"`
 	LastApiAccessed time.Time     `bson:"last_api_accessed"`
 	ApiIPAddress    string        `bson:"api_ip_address"`
-	CreatedBy       bson.ObjectId `bson:"cb"`
+	CreatedBy       string        `bson:"cb"`
 	CreatedTime     time.Time     `bson:"ct"`
-	UpdatedBy       bson.ObjectId `bson:"ub"`
+	UpdatedBy       string        `bson:"ub"`
 	UpdatedTime     time.Time     `bson:"ut"`
 }
 

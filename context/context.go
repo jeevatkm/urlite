@@ -26,7 +26,7 @@ import (
 )
 
 const (
-	VERSION = "0.1"
+	VERSION = "0.1.0"
 )
 
 var (
@@ -342,7 +342,7 @@ func (a *App) GetUrliteID(dn string, n int64) (ul string, err error) {
 	return
 }
 
-func (a *App) AddDomain(d model.Domain) {
+func (a *App) AddDomain(d *model.Domain) {
 	a.Domains[d.Name] = &model.Domain{ID: d.ID,
 		Name:            d.Name,
 		Scheme:          d.Scheme,
@@ -398,7 +398,7 @@ func (a *App) loadDomains() {
 	}
 
 	for _, v := range domains {
-		a.AddDomain(v)
+		a.AddDomain(&v)
 	}
 
 	log.Infof("%d domains loaded and it's hash generater have been initialized", len(a.Domains))

@@ -15,9 +15,13 @@ import (
 )
 
 const (
-	TEXT_CONTENT = "text/plain"
-	HTML_CONTENT = "text/html; charset=utf-8"
-	JSON_CONTENT = "application/json; charset=utf-8"
+	TEXT_CONTENT  = "text/plain"
+	HTML_CONTENT  = "text/html; charset=utf-8"
+	JSON_CONTENT  = "application/json; charset=utf-8"
+	ALERT_SUCCESS = "success"
+	ALERT_INFO    = "info"
+	ALERT_WARN    = "warning"
+	ALERT_ERROR   = "danger"
 )
 
 type Response struct {
@@ -68,50 +72,14 @@ func (h Handle) ServeHTTPC(c web.C, w http.ResponseWriter, r *http.Request) {
 			io.WriteString(w, body)
 		case http.StatusSeeOther, http.StatusFound:
 			http.Redirect(w, r, res.Redirect, code)
-		case http.StatusNotFound:
-			http.NotFound(w, r)
-		// And if we wanted a friendlier error page:
-		// err := ah.renderTemplate(w, "http_404.tmpl", nil)
 		case http.StatusInternalServerError:
 			http.Error(w, http.StatusText(code), code)
 		default:
 			log.Info("Unable to render output, will do something")
+			w.WriteHeader(http.StatusInternalServerError)
+			io.WriteString(w, "Oops, something wrong!")
 		}
 	}
-
-	/*if err != nil {
-		log.Infof("HTTP %d: %q", code, err)
-		switch code {
-		case http.StatusNotFound:
-			http.NotFound(w, r)
-		// And if we wanted a friendlier error page:
-		// err := ah.renderTemplate(w, "http_404.tmpl", nil)
-		case http.StatusInternalServerError:
-			http.Error(w, http.StatusText(code), code)
-		default:
-			http.Error(w, http.StatusText(code), code)
-		}
-	} else {
-		if session, exists := c.Env["Session"]; exists {
-			log.Debug("Saving sessions...")
-			err = session.(*sessions.Session).Save(r, w)
-			if err != nil {
-				log.Errorf("Can't save session: %v", err)
-				code = http.StatusInternalServerError
-			}
-		}
-
-		switch code {
-		case http.StatusOK:
-			w.Header().Set("Content-Type", contentType)
-			io.WriteString(w, body)
-		case http.StatusSeeOther, http.StatusFound:
-			http.Redirect(w, r, res.Redirect, code)
-		default:
-			w.WriteHeader(code)
-			io.WriteString(w, body)
-		}
-	} */
 }
 
 func isApiRequest(c web.C) bool {
@@ -124,6 +92,16 @@ func GetSession(c web.C) *sessions.Session {
 
 func GetUser(c web.C) *model.User {
 	return c.Env["User"].(*model.User)
+}
+
+func SetErrorAlert(c web.C, m string) {
+	c.Env["AlertMsg"] = m
+	c.Env["AlertType"] = ALERT_ERROR
+}
+
+func SetSuccessAlert(c web.C, m string) {
+	c.Env["AlertMsg"] = m
+	c.Env["AlertType"] = ALERT_SUCCESS
 }
 
 func ToHTML(s string) template.HTML {

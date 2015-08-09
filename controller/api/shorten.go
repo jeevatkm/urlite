@@ -59,7 +59,7 @@ func Shorten(a *context.App, c web.C, r *http.Request) (*Response, error) {
 	ul := &model.Urlite{ID: urliteId,
 		Urlite:      urlite,
 		LongUrl:     strings.TrimSpace(shortReq.LongUrl),
-		CreatedBy:   u.ID,
+		CreatedBy:   u.ID.Hex(),
 		CreatedTime: time.Now()}
 	err = model.CreateUrlite(a.DB(), domain.CollName, ul)
 	if err != nil {

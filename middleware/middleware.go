@@ -47,7 +47,7 @@ func Session(a *context.App) func(*web.C, http.Handler) http.Handler {
 						log.Debugf("New session created: %v", session.IsNew)
 					}
 				} else {
-					log.Errorf("Could not be decoded", err)
+					log.Errorf("Could not be decoded, it's protected resources", err)
 				}
 			}
 
