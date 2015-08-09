@@ -11,19 +11,19 @@ import (
 const DOMAIN_COLLECTION = "domains"
 
 type Domain struct {
-	ID              bson.ObjectId `bson:"_id,omitempty"`
-	Name            string        `bson:"name"`
-	Scheme          string        `bson:"scheme"`
-	Salt            string        `bson:"salt"`
-	LinkCount       int64         `bson:"link_cnt"`
-	CustomLinkCount int64         `bson:"custom_link_cnt"`
-	IsDefault       bool          `bson:"is_default"`
-	CollName        string        `bson:"coll_name"`
-	StatsCollName   string        `bson:"stats_coll_name"`
-	CreatedBy       string        `bson:"cb"`
-	CreatedTime     time.Time     `bson:"ct"`
-	UpdatedBy       string        `bson:"ub"`
-	UpdatedTime     time.Time     `bson:"ut"`
+	ID              bson.ObjectId `bson:"_id,omitempty" json:"-"`
+	Name            string        `bson:"name" json:"name"`
+	Scheme          string        `bson:"scheme" json:"scheme"`
+	Salt            string        `bson:"salt" json:"-"`
+	LinkCount       int64         `bson:"link_cnt" json:"link_cnt"`
+	CustomLinkCount int64         `bson:"custom_link_cnt" json:"custom_link_cnt"`
+	IsDefault       bool          `bson:"is_default" json:"is_default"`
+	CollName        string        `bson:"coll_name" json:"-"`
+	StatsCollName   string        `bson:"stats_coll_name" json:"-"`
+	CreatedBy       string        `bson:"cb" json:"-"`
+	CreatedTime     time.Time     `bson:"ct" json:"-"`
+	UpdatedBy       string        `bson:"ub" json:"-"`
+	UpdatedTime     time.Time     `bson:"ut" json:"-"`
 }
 
 func CreateDomain(db *mgo.Database, d *Domain) error {

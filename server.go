@@ -75,7 +75,9 @@ func main() {
 	apirt.Use(middleware.RESTAutomaticOptions)
 	apirt.Use(middleware.MediaTypeCheck)
 	apirt.Use(middleware.ApiAuth(context))
-	apirt.Post("/shorten", ctr.Handle{context, api.Shorten})
+	apirt.Post("/urlite", ctr.Handle{context, api.Urlite})
+	apirt.Get("/domains", ctr.Handle{context, api.Domains})
+	apirt.Get("/domains/:name", ctr.Handle{context, api.Domains})
 
 	goji.Handle("/api/*", apirt)
 

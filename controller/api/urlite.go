@@ -13,9 +13,7 @@ import (
 	. "github.com/jeevatkm/urlite/controller"
 )
 
-const ()
-
-func Shorten(a *context.App, c web.C, r *http.Request) (*Response, error) {
+func Urlite(a *context.App, c web.C, r *http.Request) (*Response, error) {
 	shortReq := &model.ShortenRequest{}
 	if err := DecodeJSON(r, &shortReq); err != nil {
 		log.Errorf("Unmarshal error: %q", err)

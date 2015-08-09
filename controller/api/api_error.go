@@ -29,6 +29,10 @@ func errConflict(m string) *Response {
 	return cResponse(cApiError("already_exists", m), http.StatusConflict)
 }
 
+func errForbidden(m string) *Response {
+	return cResponse(cApiError("forbidden", m), http.StatusForbidden)
+}
+
 // Functional Errors
 func errUnmarshal() *Response {
 	return errBadRequest("The request could not be understood by the urlite api due to bad syntax")
