@@ -9,18 +9,20 @@
     <div class="col-md-4 col-md-offset-4">
         <div class="panel panel-default login-panel">
             <div class="panel-body">
-                <form role="form" method="post">
+                <form id="loginForm" role="form" method="post">
                     <fieldset>
                     	{{range .Flash}}
 							<div class="alert alert-danger">{{.}}</div>
 						{{end}}
-                        <div class="form-group">
-                            <input class="form-control" placeholder="Email address" name="email" type="email" autofocus="">
+                        <div class="form-group has-feedback">
+                            <input class="form-control" placeholder="Email address" name="email" type="email" autofocus="" data-error="Email address is invalid" required>
+                            <div class="help-block with-errors"></div>
                         </div>
-                        <div class="form-group">
-                            <input class="form-control" placeholder="Password" name="password" type="password" value="">
+                        <div class="form-group has-feedback">
+                            <input class="form-control" placeholder="Password" name="password" type="password" value="" data-error="Password is required" required>
+                            <div class="help-block with-errors"></div>
                         </div>
-                        <div style="text-align:center">
+                        <div class="text-center">
                             <button type="submit" class="btn btn-success btn-green">Login</button>
                         </div>
                         <input type="hidden" name="srt" value="{{.SRT}}" />
@@ -30,4 +32,13 @@
         </div>
     </div>
 </div>
+<script type="text/javascript">
+    function wpr() {
+         $('#loginForm').validator().on('submit', function (e) {
+            if (e.isDefaultPrevented()) {
+                return false;
+            } 
+        });
+    }
+</script>
 {{end}}
