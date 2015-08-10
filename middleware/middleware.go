@@ -96,7 +96,7 @@ func AdminAuth(a *context.App) func(*web.C, http.Handler) http.Handler {
 		fn := func(w http.ResponseWriter, r *http.Request) {
 			if u, exists := c.Env["User"]; exists {
 				if u.(*model.User).IsAdmin() {
-					c.Env["UserCount"] = model.GetUserCount(a.DB())
+					c.Env["UserCount"] = model.GetActiveUserCount(a.DB())
 					h.ServeHTTP(w, r)
 				} else {
 					log.Warnf("User[%v] doesn't have admin rights, denying access to /admin/*", u.(*model.User).Email)

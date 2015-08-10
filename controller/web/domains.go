@@ -62,6 +62,8 @@ func DomainsPost(a *context.App, c web.C, r *http.Request) (*Response, error) {
 	d, _ := model.GetDomain(a.DB(), &dName)
 	a.AddDomain(d)
 	c.Env["DomainCount"] = len(a.Domains)
-	SetSuccessAlert(c, "Successfully added domain: "+dName)
+	msg := "Successfully added domain: " + dName
+	SetSuccessAlert(c, msg)
+	log.Info(msg)
 	return Domains(a, c, r)
 }

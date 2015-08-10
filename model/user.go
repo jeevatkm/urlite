@@ -62,6 +62,15 @@ func AuthenticateUser(db *mgo.Database, email string, password string) (user *Us
 	return
 }
 
+func GetActiveUserCount(db *mgo.Database) int {
+	cnt, err := db.C(USER_COLLECTION).Find(bson.M{"is_active": true}).Count()
+	if err != nil {
+		log.Errorf("Unable to get active user count: %q", err)
+		return 0
+	}
+	return cnt
+}
+
 func GetUserCount(db *mgo.Database) int {
 	cnt, err := db.C(USER_COLLECTION).Count()
 	if err != nil {

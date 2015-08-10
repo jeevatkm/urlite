@@ -63,6 +63,7 @@ func main() {
 	ar.Get("/domains", ctr.Handle{context, web.Domains})
 	ar.Post("/domains", ctr.Handle{context, web.DomainsPost})
 	ar.Get("/users", ctr.Handle{context, web.Users})
+	ar.Post("/users", ctr.Handle{context, web.UsersPost})
 
 	goji.Handle("/admin/*", ar)
 	goji.Get("/admin", http.RedirectHandler("/admin/dashboard", 301))

@@ -347,6 +347,7 @@ func (a *App) AddDomain(d *model.Domain) {
 		Name:            d.Name,
 		Scheme:          d.Scheme,
 		Salt:            d.Salt,
+		IsDefault:       d.IsDefault,
 		LinkCount:       d.LinkCount,
 		CustomLinkCount: d.CustomLinkCount,
 		CollName:        d.CollName,

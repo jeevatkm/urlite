@@ -1,5 +1,6 @@
 {{define "users"}}
-<div class="row">
+<div class="row admin">
+    <div id="alert_container"></div>
     <div class="panel panel-default panel-pad">
         <div class="panel-body admin-min-height">
         	<div class="row">
@@ -8,7 +9,7 @@
                     <div class="page-header user-pg-hdr">
 		        	 <h2>Users
                          <div class="nav-form pull-right" style="margin-top:-5px">
-                            <button type="button" class="btn btn-default btn-sm" style="width:65px">Add</button>
+                            <button type="button" class="btn btn-default btn-sm btn-urlite-g" id="addUser" style="width:65px">Add</button>
                          </div>
                      </h2>                     
                     </div>
@@ -47,4 +48,112 @@
         </div> <!--/.panel-body -->
     </div>
 </div>
+<div class="modal fade" id="userAddModal" tabindex="-1" role="dialog" aria-labelledby="userAddModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="userAddModalLabel">Adding a new User</h4>
+      </div>
+      <div class="modal-body">
+        <div class="container-fluid">
+            <form id="userForm" method="post" class="form-horizontal">
+                <div class="form-group has-feedback">
+                    <label for="email" class="col-sm-4 control-label">Email Address</label>
+                    <div class="col-sm-7">
+                        <input type="email" class="form-control" id="uemail" name="uemail" placeholder="User email address" data-error="User email address is required" required>
+                        <div class="help-block with-errors"></div>
+                    </div>                    
+                </div>
+                <div class="form-group">
+                    <label for="userDomains" class="col-sm-4 control-label">Domains</label>
+                    <div class="col-sm-7">
+                        <div class="btn-group" id="userDomains" style="width:100%">
+                            <button type="button" data-toggle="dropdown" class="btn btn-default dropdown-toggle" role="button" aria-expanded="false" style="width:100%;text-align:left;">Domains <span class="caret pull-right" style="margin-top: 8px;"></span></button>
+                            <ul class="dropdown-menu" style="width:100%;padding-left:15px;padding-bottom:15px;">
+                            {{range .Domains}}
+                                <li>
+                                    <div class="checkbox">
+                                        <label><input type="checkbox" value="{{.Name}}" {{if .IsDefault}}checked{{end}}> {{.Name}}</label>
+                                    </div>
+                                </li>
+                            {{end}}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="userPermissions" class="col-sm-4 control-label">Permissions</label>
+                    <div class="col-sm-7">
+                        <div class="btn-group" id="userPermissions" style="width:100%">
+                            <button type="button" data-toggle="dropdown" class="btn btn-default dropdown-toggle" role="button" aria-expanded="false" style="width:100%;text-align:left;">Permissions <span class="caret pull-right" style="margin-top: 8px;"></span></button>
+                            <ul class="dropdown-menu" style="width:100%;padding-left:15px;padding-bottom:15px;">
+                                <li>
+                                    <div class="checkbox">
+                                        <label><input type="checkbox" value="ADMIN"> Administrator</label>
+                                    </div>
+                                </li>
+                                <li>
+                                    <div class="checkbox">
+                                        <label><input type="checkbox" value="BASIC" checked> User</label>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <input type="hidden" id="sUserDomains" name="sUserDomains" value="" />
+                <input type="hidden" id="sUserPermissions" name="sUserPermissions" value="" />
+                <div class="form-group col-sm-6 pull-right" style="margin-right:-48px;margin-top:10px;">
+                    <button type="button" class="btn btn-default btn-urlite-r" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success btn-green">Add User</button>
+                </div>
+            </form>
+        </div>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+<script type="text/javascript">
+    function wpr() {
+        $("#addUser").click(function(){
+            $("#userAddModal")
+            .on('shown.bs.modal', function (e) { //var button = $(e.relatedTarget)  //var modal = $(this)
+                 $(this).find('.modal-body [name="email"]').focus();
+            })
+            .on('hidden.bs.modal', function (e) {            
+                $(this).find('.modal-body input').val('');
+            })
+            .modal('show');
+        });
+
+        $.each(['#userDomains li label', '#userPermissions li label'], function(i, v) {
+            $(v).each(function() {
+                $(this).click(function(e){
+                    e.stopPropagation();
+                });
+            });
+        });
+
+        $('#userForm').validator().on('submit', function (e) {
+            if (e.isDefaultPrevented()) {
+                return false;
+            } else {
+                var domains = [];
+                $('#userDomains input[type="checkbox"]:checked').each(function() {
+                    domains.push($(this).val());
+                });
+                $('#sUserDomains').val(domains.join(','));
+
+                var permissions = [];
+                $('#userPermissions input[type="checkbox"]:checked').each(function() {
+                    permissions.push($(this).val());
+                });
+                $('#sUserPermissions').val(permissions.join(','));
+            }
+        });
+
+        {{if .AlertMsg}}$('#alert_container').bs_alert('{{.AlertMsg}}', '{{.AlertType}}');{{end}}
+    }
+</script>
 {{end}}
