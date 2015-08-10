@@ -54,5 +54,5 @@ func handleDomainInfo(a *context.App, u *model.User, dName string) *Response {
 		return cResponse(result, http.StatusOK)
 	}
 
-	return errForbidden("You do not have access to given domain.")
+	return errForbidden("You do not have access to given domain")
 }

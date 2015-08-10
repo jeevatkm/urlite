@@ -7,6 +7,7 @@ import (
 
 	"github.com/jeevatkm/urlite/context"
 	"github.com/jeevatkm/urlite/model"
+	"github.com/jeevatkm/urlite/util"
 	"github.com/zenazn/goji/web"
 
 	log "github.com/Sirupsen/logrus"
@@ -18,6 +19,13 @@ func Urlite(a *context.App, c web.C, r *http.Request) (*Response, error) {
 	if err := DecodeJSON(r, &shortReq); err != nil {
 		log.Errorf("Unmarshal error: %q", err)
 		return errUnmarshal(), nil
+	}
+
+	u := GetUser(c)
+	if !util.Contains(u.Domains, shortReq.Domain) && !u.IsAdmin() {
+		msg := "You do not have access to given domain"
+		log.Errorf("%v: %v", u.Email, msg)
+		return errForbidden(msg), nil
 	}
 
 	domain, err := a.GetDomainDetail(shortReq.Domain)
@@ -52,8 +60,6 @@ func Urlite(a *context.App, c web.C, r *http.Request) (*Response, error) {
 	}
 
 	urlite = domain.ComposeUrlite(&urliteId)
-	u := GetUser(c)
-
 	ul := &model.Urlite{ID: urliteId,
 		Urlite:      urlite,
 		LongUrl:     strings.TrimSpace(shortReq.LongUrl),
