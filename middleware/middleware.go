@@ -19,9 +19,8 @@ import (
 func AppInfo(a *context.App) func(*web.C, http.Handler) http.Handler {
 	return func(c *web.C, h http.Handler) http.Handler {
 		fn := func(w http.ResponseWriter, r *http.Request) {
-			c.Env["AppName"] = a.Config.AppName
+			c.Env["Config"] = a.Config
 			c.Env["AppVersion"] = context.VERSION
-			c.Env["OrgName"] = a.Config.Owner.Org
 			c.Env["DomainCount"] = len(a.Domains)
 			c.Env["AllLinkCount"] = a.AllLinkCount()
 

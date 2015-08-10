@@ -3,7 +3,7 @@
         <footer class="footer">
             <small>
                 <p class="pull-right">Powered By <a href="http://urlite.myjeeva.com">urlite</a>, v{{.AppVersion}}</p>
-                <p>© <script>document.write(new Date().getFullYear())</script> {{.OrgName}}</p>
+                <p>© <script>document.write(new Date().getFullYear())</script> {{.Config.Owner.Org}}</p>
             </small>
         </footer>
     </div>
@@ -14,8 +14,6 @@
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
     <script src="/static/js/validator.min.js"></script>
     <script src="/static/js/urlite.js"></script>
-    <!-- <script src="//cdn.jsdelivr.net/jquery.validation/1.14.0/jquery.validate.min.js"></script> -->
-    <!-- <script src="//cdn.jsdelivr.net/jquery.validation/1.14.0/additional-methods.js"></script> -->
     <script>(typeof $().emulateTransitionEnd == 'function') || document.write('<script src="/static/js/bootstrap.min.js"><\/script>');
     !($.browser.msie && $.browser.version === 10) || document.write('<script src="/static/js/ie10-viewport-bug-workaround.js"><\/script>');
     </script>
