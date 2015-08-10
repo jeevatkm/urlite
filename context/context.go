@@ -356,7 +356,7 @@ func (a *App) AddDomain(d *model.Domain) {
 	// Initializing Hash generater for domain
 	hd := hash.NewData()
 	hd.Salt = d.Salt
-	hd.MinLength = 5
+	hd.MinLength = 4
 	a.HashGen[d.Name] = hash.NewWithData(hd)
 
 	// Initial linkstate for domain
