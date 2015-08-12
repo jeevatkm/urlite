@@ -18,10 +18,10 @@ import (
 )
 
 func Users(a *context.App, c web.C, r *http.Request) *Response {
-	users, _ := model.GetAllUsers(a.DB())
+	//users, _ := model.GetAllUsers(a.DB(), true)
 	AddData(c, Data{
 		"IsUsers": true,
-		"Users":   users,
+		//"Users":   users,
 		"Domains": a.Domains,
 	})
 
@@ -37,6 +37,25 @@ func Users(a *context.App, c web.C, r *http.Request) *Response {
 	code = CheckError(err)
 
 	return HTMLc(body, code)
+}
+
+func UsersData(a *context.App, c web.C, r *http.Request) *Response {
+	log.Debugf("Query params: %v", r.URL.RawQuery)
+
+	users, _ := model.GetAllUsers(a.DB(), true)
+	body, err := MarshalJSON(users)
+	if err != nil {
+		log.Errorf("JSON Marshal error: %q", err)
+		body = `{
+			"status":"error",
+			"message": "Unable to users list."
+			}`
+		return JSON(body)
+	}
+
+	//log.Debug(body)
+
+	return JSON(body)
 }
 
 func UsersPost(a *context.App, c web.C, r *http.Request) *Response {

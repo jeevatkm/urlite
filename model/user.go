@@ -14,21 +14,21 @@ import (
 const USER_COLLECTION = "users"
 
 type User struct {
-	ID              bson.ObjectId `bson:"_id,omitempty"`
-	Email           string        `bson:"email"`
-	Password        string        `bson:"password"`
-	IsActive        bool          `bson:"is_active"`
-	Permissions     []string      `bson:"permissions"`
-	Bearer          string        `bson:"bearer"`
-	Domains         []string      `bson:"domains"`
-	LastLoggedIn    time.Time     `bson:"last_logged_in"`
-	LoginIPAddress  string        `bson:"login_ip_address"`
-	LastApiAccessed time.Time     `bson:"last_api_accessed"`
-	ApiIPAddress    string        `bson:"api_ip_address"`
-	CreatedBy       string        `bson:"cb"`
-	CreatedTime     time.Time     `bson:"ct"`
-	UpdatedBy       string        `bson:"ub"`
-	UpdatedTime     time.Time     `bson:"ut"`
+	ID              bson.ObjectId `bson:"_id,omitempty" json:"-"`
+	Email           string        `bson:"email" json:"email"`
+	Password        string        `bson:"password" json:"password"`
+	IsActive        bool          `bson:"is_active" json:"is_active"`
+	Permissions     []string      `bson:"permissions" json:"permissions"`
+	Bearer          string        `bson:"bearer" json:"bearer"`
+	Domains         []string      `bson:"domains" json:"domains"`
+	LastLoggedIn    time.Time     `bson:"last_logged_in" json:"last_logged_in"`
+	LoginIPAddress  string        `bson:"login_ip_address" json:"login_ip_address"`
+	LastApiAccessed time.Time     `bson:"last_api_accessed" json:"last_api_accessed"`
+	ApiIPAddress    string        `bson:"api_ip_address" json:"api_ip_address"`
+	CreatedBy       string        `bson:"cb" json:"-"`
+	CreatedTime     time.Time     `bson:"ct" json:"-"`
+	UpdatedBy       string        `bson:"ub" json:"-"`
+	UpdatedTime     time.Time     `bson:"ut" json:"-"`
 }
 
 // func init() {
@@ -95,8 +95,8 @@ func GetUserByBearer(db *mgo.Database, bearer *string) (user *User, err error) {
 	return
 }
 
-func GetAllUsers(db *mgo.Database) (users []User, err error) {
-	err = db.C(USER_COLLECTION).Find(bson.M{}).Sort("-last_api_accessed", "-last_logged_in").All(&users)
+func GetAllUsers(db *mgo.Database, isActive bool) (users []User, err error) {
+	err = db.C(USER_COLLECTION).Find(bson.M{"is_active": isActive}).Sort("-last_api_accessed", "-last_logged_in").All(&users)
 	return
 }
 
