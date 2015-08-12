@@ -111,14 +111,14 @@
 
         $('#domainForm').validator().on('submit', function (e) {
             if (e.isDefaultPrevented()) {
-                console.log('having error');
                 return false;
-            } else {
-                console.log('looks good');
-            }
+            } 
+            // else {
+            //     console.log('looks good');
+            // }
         });
 
-        {{if .AlertMsg}}$('#alert_container').bs_alert('{{.AlertMsg}}', '{{.AlertType}}');{{end}}
+        {{if .AlertMsg}}$('#alert_container').bsAlert('{{.AlertMsg}}', '{{.AlertType}}').bsHideAlert();{{end}}
     }
 </script>
 {{end}}

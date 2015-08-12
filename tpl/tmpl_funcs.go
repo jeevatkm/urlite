@@ -47,9 +47,9 @@ func FriendlyDateTime(t time.Time) string {
 		return ""
 	}
 	if t.Year() == time.Now().Year() {
-		return t.Format("Jan 2, 3:04:05 pm")
+		return t.Format("Jan 2, 3:04 pm")
 	}
-	return t.Format("Jan 2, 2006, 3:04:05 pm")
+	return t.Format("Jan 2, 2006, 3:04 pm")
 }
 
 func ToCommaStr(v []string) string {

@@ -43,6 +43,9 @@ func main() {
 	 * Root level routes
 	 */
 	goji.Get("/", ctr.Handle{context, web.Home})
+	goji.Get("/profile", ctr.Handle{context, web.Profile})
+	goji.Post("/profile", ctr.Handle{context, web.ProfilePost})
+	goji.Get("/dashboard", ctr.Handle{context, web.Dashboard})
 
 	// Login routes
 	goji.Get("/login", ctr.Handle{context, web.Login})

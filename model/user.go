@@ -105,6 +105,10 @@ func CreateUser(db *mgo.Database, user *User) error {
 	return db.C(USER_COLLECTION).Insert(user)
 }
 
+func UpdateUser(db *mgo.Database, user *User) error {
+	return db.C(USER_COLLECTION).UpdateId(user.ID, user)
+}
+
 func UpdateUserLastApiAccess(db *mgo.Database, u *User) (err error) {
 	sel := bson.M{"_id": u.ID}
 	update := bson.M{"$set": bson.M{"last_api_accessed": u.LastApiAccessed, "api_ip_address": u.ApiIPAddress}}

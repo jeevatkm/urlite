@@ -10,9 +10,19 @@ import (
 )
 
 func Dashboard(a *context.App, c web.C, r *http.Request) (*Response, error) {
-	AddData(c, Data{
-		"IsDashboard": true,
-	})
+	u := GetUser(c)
+
+	if u.IsAdmin() {
+		AddData(c, Data{
+			"IsDashboard": true,
+		})
+
+	} else {
+		AddData(c, Data{
+			"IsUserDashboard": true,
+		})
+
+	}
 
 	content, err := a.Parse("dashboard", c.Env)
 	code := CheckError(err)
