@@ -6,18 +6,16 @@ import (
 	"strings"
 	"time"
 
-	"github.com/jeevatkm/urlite/model"
-
-	log "github.com/Sirupsen/logrus"
-	"github.com/jeevatkm/urlite/util"
-
 	"github.com/jeevatkm/urlite/context"
+	"github.com/jeevatkm/urlite/model"
+	"github.com/jeevatkm/urlite/util"
 	"github.com/zenazn/goji/web"
 
+	log "github.com/Sirupsen/logrus"
 	. "github.com/jeevatkm/urlite/controller"
 )
 
-func Profile(a *context.App, c web.C, r *http.Request) (*Response, error) {
+func Profile(a *context.App, c web.C, r *http.Request) *Response {
 	//u := GetUser(c)
 
 	AddData(c, Data{
@@ -35,11 +33,11 @@ func Profile(a *context.App, c web.C, r *http.Request) (*Response, error) {
 	body, err := a.ParseF(c.Env)
 	code = CheckError(err)
 
-	return &Response{ContentType: HTML_CONTENT, Body: body, Code: code}, err
+	return HTMLc(body, code)
 
 }
 
-func ProfilePost(a *context.App, c web.C, r *http.Request) (*Response, error) {
+func ProfilePost(a *context.App, c web.C, r *http.Request) *Response {
 	action := strings.TrimSpace(r.FormValue("a"))
 
 	if action == "CP" { // Change password
@@ -49,7 +47,7 @@ func ProfilePost(a *context.App, c web.C, r *http.Request) (*Response, error) {
 	return handleProfileUpdate(a, c, r)
 }
 
-func handleChangePassword(a *context.App, c web.C, r *http.Request) (*Response, error) {
+func handleChangePassword(a *context.App, c web.C, r *http.Request) *Response {
 	u := GetUser(c)
 	log.Debugf("Action change password for %v", u.Email)
 	ep, np := r.FormValue("existingPassword"), r.FormValue("newPassword")
@@ -62,7 +60,7 @@ func handleChangePassword(a *context.App, c web.C, r *http.Request) (*Response, 
 			"status":"error",
 			"message": "Existing password is incorrect"
 			}`
-		return &Response{ContentType: JSON_CONTENT, Body: body, Code: http.StatusOK}, err
+		return JSON(body)
 	}
 
 	user, _ := model.GetUserByEmail(a.DB(), u.Email)
@@ -76,7 +74,7 @@ func handleChangePassword(a *context.App, c web.C, r *http.Request) (*Response, 
 			"status":"error",
 			"message": "Error occurred while updating user"
 			}`
-		return &Response{ContentType: JSON_CONTENT, Body: body, Code: http.StatusOK}, err
+		return JSON(body)
 	}
 
 	log.Debugf("Password updated successfully for %v", user.Email)
@@ -85,10 +83,10 @@ func handleChangePassword(a *context.App, c web.C, r *http.Request) (*Response, 
 			"message": "Password updated successfully."
 			}`
 
-	return &Response{ContentType: JSON_CONTENT, Body: body, Code: http.StatusOK}, nil
+	return JSON(body)
 }
 
-func handleProfileUpdate(a *context.App, c web.C, r *http.Request) (*Response, error) {
+func handleProfileUpdate(a *context.App, c web.C, r *http.Request) *Response {
 
-	return &Response{ContentType: JSON_CONTENT, Body: "{}", Code: http.StatusOK}, nil
+	return JSON("{}")
 }

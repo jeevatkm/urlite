@@ -14,24 +14,24 @@ import (
 	. "github.com/jeevatkm/urlite/controller"
 )
 
-func Urlite(a *context.App, c web.C, r *http.Request) (*Response, error) {
+func Urlite(a *context.App, c web.C, r *http.Request) *Response {
 	shortReq := &model.ShortenRequest{}
 	if err := DecodeJSON(r, &shortReq); err != nil {
 		log.Errorf("Unmarshal error: %q", err)
-		return errUnmarshal(), nil
+		return errUnmarshal()
 	}
 
 	u := GetUser(c)
 	if !util.Contains(u.Domains, shortReq.Domain) && !u.IsAdmin() {
 		msg := "You do not have access to given domain"
 		log.Errorf("%v: %v", u.Email, msg)
-		return errForbidden(msg), nil
+		return errForbidden(msg)
 	}
 
 	domain, err := a.GetDomainDetail(shortReq.Domain)
 	if err != nil {
 		log.Errorf("Invalid domain: %v", err)
-		return errInvalidDomain(), nil
+		return errInvalidDomain()
 	}
 
 	urlite := ""
@@ -43,7 +43,7 @@ func Urlite(a *context.App, c web.C, r *http.Request) (*Response, error) {
 		exists, _ := model.GetUrlite(a.DB(), domain.CollName, &urliteId)
 		if exists != nil {
 			log.Errorf("Given custom name is unavailable: %v", err)
-			return errConflict("Given custom name [" + urliteId + "] is unavailable"), nil
+			return errConflict("Given custom name [" + urliteId + "] is unavailable")
 		}
 		a.IncDomainCustomLink(domain.Name)
 	} else { // Hash generate mode
@@ -53,7 +53,7 @@ func Urlite(a *context.App, c web.C, r *http.Request) (*Response, error) {
 		turliteId, err := a.GetUrliteID(domain.Name, linkNum)
 		if err != nil {
 			log.Errorf("Unable to generate hashid for number[%d]: %q", linkNum, err)
-			return errGenerateUrlite(), nil
+			return errGenerateUrlite()
 		}
 
 		urliteId = turliteId
@@ -68,15 +68,15 @@ func Urlite(a *context.App, c web.C, r *http.Request) (*Response, error) {
 	err = model.CreateUrlite(a.DB(), domain.CollName, ul)
 	if err != nil {
 		log.Errorf("Unable to insert new urlite into db: %q", err)
-		return errGenerateUrlite(), nil
+		return errGenerateUrlite()
 	}
 
 	sr := &model.ShortenResponse{Urlite: urlite}
 	result, err := MarshalJSON(sr)
 	if err != nil {
 		log.Errorf("JSON Marshal error: %q", err)
-		return errGenerateUrlite(), nil
+		return errGenerateUrlite()
 	}
 
-	return cResponseH(result, http.StatusCreated, map[string]string{"Location": urlite}), nil
+	return JSONch(result, http.StatusCreated, map[string]string{"Location": urlite})
 }

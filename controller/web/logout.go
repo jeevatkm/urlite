@@ -10,10 +10,10 @@ import (
 	"github.com/zenazn/goji/web"
 
 	log "github.com/Sirupsen/logrus"
-	ctr "github.com/jeevatkm/urlite/controller"
+	. "github.com/jeevatkm/urlite/controller"
 )
 
-func Logout(a *context.App, c web.C, r *http.Request) (*ctr.Response, error) {
+func Logout(a *context.App, c web.C, r *http.Request) *Response {
 	session, exists := c.Env["Session"]
 
 	if exists {
@@ -32,5 +32,5 @@ func Logout(a *context.App, c web.C, r *http.Request) (*ctr.Response, error) {
 		log.Error("User session is not exists, incorrect invocation")
 	}
 
-	return &ctr.Response{Redirect: "/", Code: http.StatusSeeOther}, nil
+	return &Response{Redirect: "/", Code: http.StatusSeeOther}
 }

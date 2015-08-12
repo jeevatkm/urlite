@@ -15,7 +15,7 @@ import (
 	. "github.com/jeevatkm/urlite/controller"
 )
 
-func Login(a *context.App, c web.C, r *http.Request) (*Response, error) {
+func Login(a *context.App, c web.C, r *http.Request) *Response {
 	session := GetSession(c)
 
 	content, err := a.Parse("login", Data{
@@ -33,10 +33,10 @@ func Login(a *context.App, c web.C, r *http.Request) (*Response, error) {
 	body, err := a.ParseF(c.Env)
 	code = CheckError(err)
 
-	return &Response{ContentType: HTML_CONTENT, Body: body, Code: code}, err
+	return HTMLc(body, code)
 }
 
-func LoginPost(a *context.App, c web.C, r *http.Request) (*Response, error) {
+func LoginPost(a *context.App, c web.C, r *http.Request) *Response {
 	email, password := r.FormValue("email"), r.FormValue("password")
 	user, err := model.AuthenticateUser(a.DB(), email, password)
 
@@ -73,5 +73,5 @@ func LoginPost(a *context.App, c web.C, r *http.Request) (*Response, error) {
 		rtPath = srt
 	}
 
-	return &Response{Redirect: rtPath, Code: http.StatusFound}, nil
+	return &Response{Redirect: rtPath, Code: http.StatusFound}
 }

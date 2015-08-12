@@ -13,7 +13,7 @@ import (
 	. "github.com/jeevatkm/urlite/controller"
 )
 
-func Domains(a *context.App, c web.C, r *http.Request) (*Response, error) {
+func Domains(a *context.App, c web.C, r *http.Request) *Response {
 	domains, _ := model.GetAllDomain(a.DB())
 	AddData(c, Data{
 		"IsDomains": true,
@@ -31,10 +31,10 @@ func Domains(a *context.App, c web.C, r *http.Request) (*Response, error) {
 	body, err := a.ParseF(c.Env)
 	code = CheckError(err)
 
-	return &Response{ContentType: HTML_CONTENT, Body: body, Code: code}, err
+	return HTMLc(body, code)
 }
 
-func DomainsPost(a *context.App, c web.C, r *http.Request) (*Response, error) {
+func DomainsPost(a *context.App, c web.C, r *http.Request) *Response {
 	dName := r.FormValue("dName")
 	ed, _ := model.GetDomain(a.DB(), &dName)
 	if ed != nil {

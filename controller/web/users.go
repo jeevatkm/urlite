@@ -17,7 +17,7 @@ import (
 	. "github.com/jeevatkm/urlite/controller"
 )
 
-func Users(a *context.App, c web.C, r *http.Request) (*Response, error) {
+func Users(a *context.App, c web.C, r *http.Request) *Response {
 	users, _ := model.GetAllUsers(a.DB())
 	AddData(c, Data{
 		"IsUsers": true,
@@ -36,10 +36,10 @@ func Users(a *context.App, c web.C, r *http.Request) (*Response, error) {
 	body, err := a.ParseF(c.Env)
 	code = CheckError(err)
 
-	return &Response{ContentType: HTML_CONTENT, Body: body, Code: code}, err
+	return HTMLc(body, code)
 }
 
-func UsersPost(a *context.App, c web.C, r *http.Request) (*Response, error) {
+func UsersPost(a *context.App, c web.C, r *http.Request) *Response {
 	email := r.FormValue("uemail")
 	euser, _ := model.GetUserByEmail(a.DB(), email)
 	if euser != nil {

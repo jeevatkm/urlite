@@ -36,7 +36,7 @@ type Data map[string]interface{}
 
 type Handle struct {
 	*context.App
-	H func(*context.App, web.C, *http.Request) (*Response, error)
+	H func(*context.App, web.C, *http.Request) *Response
 }
 
 func (h Handle) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -44,7 +44,7 @@ func (h Handle) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h Handle) ServeHTTPC(c web.C, w http.ResponseWriter, r *http.Request) {
-	res, err := h.H(h.App, c, r)
+	res := h.H(h.App, c, r)
 	body, code, contentType := res.Body, res.Code, res.ContentType
 
 	if isApiRequest(c) {
@@ -59,7 +59,7 @@ func (h Handle) ServeHTTPC(c web.C, w http.ResponseWriter, r *http.Request) {
 	} else {
 		if session, exists := c.Env["Session"]; exists {
 			log.Debug("Saving sessions...")
-			err = session.(*sessions.Session).Save(r, w)
+			err := session.(*sessions.Session).Save(r, w)
 			if err != nil {
 				log.Errorf("Can't save session: %v", err)
 				code = http.StatusInternalServerError
@@ -75,7 +75,7 @@ func (h Handle) ServeHTTPC(c web.C, w http.ResponseWriter, r *http.Request) {
 		case http.StatusInternalServerError:
 			http.Error(w, http.StatusText(code), code)
 		default:
-			log.Info("Unable to render output, will do something")
+			log.Error("Unable to render output, will do something")
 			w.WriteHeader(http.StatusInternalServerError)
 			io.WriteString(w, "Oops, something wrong!")
 		}
@@ -126,6 +126,34 @@ func MarshalJSON(v interface{}) (string, error) {
 	}
 
 	return string(j), err
+}
+
+func HTMLch(body string, code int, hdr map[string]string) *Response {
+	return &Response{ContentType: HTML_CONTENT, Body: body, Code: code, Headers: hdr}
+}
+
+func HTMLc(body string, code int) *Response {
+	return HTMLch(body, code, nil)
+}
+
+func HTML(body string) *Response {
+	return HTMLc(body, http.StatusOK)
+}
+
+func JSONch(body string, code int, hdr map[string]string) *Response {
+	return &Response{ContentType: JSON_CONTENT, Body: body, Code: code, Headers: hdr}
+}
+
+func JSONh(body string, hdr map[string]string) *Response {
+	return JSONch(body, http.StatusOK, hdr)
+}
+
+func JSONc(body string, code int) *Response {
+	return JSONch(body, code, nil)
+}
+
+func JSON(body string) *Response {
+	return JSONc(body, http.StatusOK)
 }
 
 func CheckError(err error) int {

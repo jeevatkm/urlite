@@ -18,19 +18,19 @@ func cApiError(id, msg string) string {
 
 // Error helper Method
 func errBadRequest(m string) *Response {
-	return cResponse(cApiError("bad_request", m), http.StatusBadRequest)
+	return JSONc(cApiError("bad_request", m), http.StatusBadRequest)
 }
 
 func errInternalServer(m string) *Response {
-	return cResponse(cApiError("error", m), http.StatusInternalServerError)
+	return JSONc(cApiError("error", m), http.StatusInternalServerError)
 }
 
 func errConflict(m string) *Response {
-	return cResponse(cApiError("already_exists", m), http.StatusConflict)
+	return JSONc(cApiError("already_exists", m), http.StatusConflict)
 }
 
 func errForbidden(m string) *Response {
-	return cResponse(cApiError("forbidden", m), http.StatusForbidden)
+	return JSONc(cApiError("forbidden", m), http.StatusForbidden)
 }
 
 // Functional Errors
@@ -39,7 +39,7 @@ func errUnmarshal() *Response {
 }
 
 func errInvalidDomain() *Response {
-	return cResponse(cApiError("bad_request", "Invalid domain"), http.StatusBadRequest)
+	return JSONc(cApiError("bad_request", "Invalid domain"), http.StatusBadRequest)
 }
 
 func errGenerateUrlite() *Response {

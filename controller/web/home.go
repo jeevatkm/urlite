@@ -9,7 +9,7 @@ import (
 	. "github.com/jeevatkm/urlite/controller"
 )
 
-func Home(a *context.App, c web.C, r *http.Request) (*Response, error) {
+func Home(a *context.App, c web.C, r *http.Request) *Response {
 	content, err := a.Parse("home", c.Env)
 	code := CheckError(err)
 
@@ -22,5 +22,5 @@ func Home(a *context.App, c web.C, r *http.Request) (*Response, error) {
 	body, err := a.ParseF(c.Env)
 	code = CheckError(err)
 
-	return &Response{ContentType: HTML_CONTENT, Body: body, Code: code}, err
+	return HTMLc(body, code)
 }

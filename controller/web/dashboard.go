@@ -9,19 +9,17 @@ import (
 	. "github.com/jeevatkm/urlite/controller"
 )
 
-func Dashboard(a *context.App, c web.C, r *http.Request) (*Response, error) {
+func Dashboard(a *context.App, c web.C, r *http.Request) *Response {
 	u := GetUser(c)
 
 	if u.IsAdmin() {
 		AddData(c, Data{
 			"IsDashboard": true,
 		})
-
 	} else {
 		AddData(c, Data{
 			"IsUserDashboard": true,
 		})
-
 	}
 
 	content, err := a.Parse("dashboard", c.Env)
@@ -35,5 +33,5 @@ func Dashboard(a *context.App, c web.C, r *http.Request) (*Response, error) {
 	body, err := a.ParseF(c.Env)
 	code = CheckError(err)
 
-	return &Response{ContentType: HTML_CONTENT, Body: body, Code: code}, err
+	return HTMLc(body, code)
 }

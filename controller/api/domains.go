@@ -13,15 +13,15 @@ import (
 	. "github.com/jeevatkm/urlite/controller"
 )
 
-func Domains(a *context.App, c web.C, r *http.Request) (*Response, error) {
+func Domains(a *context.App, c web.C, r *http.Request) *Response {
 	u := GetUser(c)
 	dName := strings.TrimSpace(c.URLParams["name"])
 
 	if len(dName) > 0 {
-		return handleDomainInfo(a, u, dName), nil
+		return handleDomainInfo(a, u, dName)
 	}
 
-	return handleDomains(a, u), nil
+	return handleDomains(a, u)
 }
 
 func handleDomains(a *context.App, u *model.User) *Response {
@@ -40,7 +40,7 @@ func handleDomains(a *context.App, u *model.User) *Response {
 		return errInternalServer("Unable to get user associated domains")
 	}
 
-	return cResponse(result, http.StatusOK)
+	return JSON(result)
 }
 
 func handleDomainInfo(a *context.App, u *model.User, dName string) *Response {
@@ -51,7 +51,7 @@ func handleDomainInfo(a *context.App, u *model.User, dName string) *Response {
 			return errInternalServer("Unable to get domain information")
 		}
 
-		return cResponse(result, http.StatusOK)
+		return JSON(result)
 	}
 
 	return errForbidden("You do not have access to given domain")
