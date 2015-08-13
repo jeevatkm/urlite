@@ -112,14 +112,14 @@
                     data: $('#changePassForm').serialize(),
                     success: function(data){
                         if (data.status == 'error') {
-                            $('#modal_alert').bsAlert(data.message, 'danger');
+                            $('#modal_alert').bsAlert(data.message, 'error');
                         } else if (data.status == 'success') {
                             $("#changePassModal").modal('hide');
                             $('#alert_container').bsAlert(data.message).bsHideAlert();
                         }
                     },
                     error: function(){
-                        $('#modal_alert').bsAlert('Oops! something went wrong.', 'danger');
+                        $('#modal_alert').bsAlert('Oops! something went wrong.', 'error');
                     }
                 });
 

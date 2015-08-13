@@ -22,7 +22,7 @@ const (
 	ALERT_SUCCESS = "success"
 	ALERT_INFO    = "info"
 	ALERT_WARN    = "warning"
-	ALERT_ERROR   = "danger"
+	ALERT_ERROR   = "error"
 )
 
 type Response struct {
@@ -48,7 +48,16 @@ func (h Handle) ServeHTTPC(c web.C, w http.ResponseWriter, r *http.Request) {
 	res := h.H(h.App, c, r)
 	body, code, contentType := res.Body, res.Code, res.ContentType
 
-	if isApiRequest(c) {
+	if session, exists := c.Env["Session"]; exists {
+		log.Debug("Saving sessions...")
+		err := session.(*sessions.Session).Save(r, w)
+		if err != nil {
+			log.Errorf("Can't save session: %v", err)
+			code = http.StatusInternalServerError
+		}
+	}
+
+	if contentType == JSON_CONTENT {
 		w.Header().Set("Content-Type", contentType)
 
 		for k, v := range res.Headers {
@@ -58,14 +67,14 @@ func (h Handle) ServeHTTPC(c web.C, w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(code)
 		io.WriteString(w, body)
 	} else {
-		if session, exists := c.Env["Session"]; exists {
-			log.Debug("Saving sessions...")
-			err := session.(*sessions.Session).Save(r, w)
-			if err != nil {
-				log.Errorf("Can't save session: %v", err)
-				code = http.StatusInternalServerError
-			}
-		}
+		// if session, exists := c.Env["Session"]; exists {
+		// 	log.Debug("Saving sessions...")
+		// 	err := session.(*sessions.Session).Save(r, w)
+		// 	if err != nil {
+		// 		log.Errorf("Can't save session: %v", err)
+		// 		code = http.StatusInternalServerError
+		// 	}
+		// }
 
 		switch code {
 		case http.StatusOK:

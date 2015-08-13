@@ -20,6 +20,17 @@ func Urlite(a *context.App, c web.C, r *http.Request) *Response {
 		log.Errorf("Unmarshal error: %q", err)
 		return errUnmarshal()
 	}
+	c.Env["shortReq"] = shortReq
+	return HandleUrlite(a, c, r)
+}
+
+func HandleUrlite(a *context.App, c web.C, r *http.Request) *Response {
+	shortReq := c.Env["shortReq"].(*model.ShortenRequest)
+	if !shortReq.IsValid() {
+		msg := "Either Long URL or Domain is not provided"
+		log.Error(msg)
+		return errBadRequest(msg)
+	}
 
 	u := GetUser(c)
 	if !util.Contains(u.Domains, shortReq.Domain) && !u.IsAdmin() {

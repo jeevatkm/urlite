@@ -5,14 +5,14 @@ run_mode = "DEV"
 
 [owner]
 name	 = "Jeevanandam M"
-organization = "GetRightCare LLP"
+organization = "Urlite"
 
 [http]
 http_ip = "127.0.0.1"
 http_port = "3000"
 
 [cookie]
-mac_secret = "secret string which has over 256-bit entropy"
+mac_secret = "ZPrTL3k6NIEzOjCIX4nWHAwVUgLO-E-W55dFyHRj5O0=" # you can use 'tools/generate_password' to get one
 secure     = false
 
 [database]

@@ -9,7 +9,6 @@ import (
 	"gopkg.in/mgo.v2/bson"
 
 	log "github.com/Sirupsen/logrus"
-
 	"github.com/gorilla/sessions"
 	"github.com/jeevatkm/urlite/context"
 	"github.com/jeevatkm/urlite/model"
@@ -22,7 +21,7 @@ func AppInfo(a *context.App) func(*web.C, http.Handler) http.Handler {
 			c.Env["Config"] = a.Config
 			c.Env["AppVersion"] = context.VERSION
 			c.Env["DomainCount"] = len(a.Domains)
-			c.Env["AllLinkCount"] = a.AllLinkCount()
+			//c.Env["AllLinkCount"] = a.AllLinkCount()
 
 			h.ServeHTTP(w, r)
 		}
