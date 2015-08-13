@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"io"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/sessions"
 	"github.com/jeevatkm/urlite/context"
@@ -102,6 +103,23 @@ func SetErrorAlert(c web.C, m string) {
 func SetSuccessAlert(c web.C, m string) {
 	c.Env["AlertMsg"] = m
 	c.Env["AlertType"] = ALERT_SUCCESS
+}
+
+func ParsePagination(r *http.Request) *model.Pagination {
+	// "<URL>?sort=last_api_accessed&order=desc&limit=2&offset=0"
+	// "<URL>?sort=last_api_accessed&order=desc&limit=2&offset=4"
+	log.Debugf("Query params: %v", r.URL.RawQuery)
+
+	qs := r.URL.Query()
+	limit, _ := strconv.Atoi(qs.Get("limit"))
+	offset, _ := strconv.Atoi(qs.Get("offset"))
+	sort := qs.Get("sort")
+	order := qs.Get("order")
+	if order == "desc" {
+		sort = "-" + sort
+	}
+
+	return &model.Pagination{Sort: sort, Order: order, Limit: limit, Offset: offset}
 }
 
 func ToHTML(s string) template.HTML {

@@ -6,10 +6,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/jeevatkm/urlite/util"
+	"gopkg.in/mgo.v2/bson"
 
 	"github.com/jeevatkm/urlite/context"
 	"github.com/jeevatkm/urlite/model"
+	"github.com/jeevatkm/urlite/util"
 	"github.com/jeevatkm/urlite/util/random"
 	"github.com/zenazn/goji/web"
 
@@ -18,10 +19,8 @@ import (
 )
 
 func Users(a *context.App, c web.C, r *http.Request) *Response {
-	//users, _ := model.GetAllUsers(a.DB(), true)
 	AddData(c, Data{
 		"IsUsers": true,
-		//"Users":   users,
 		"Domains": a.Domains,
 	})
 
@@ -40,10 +39,10 @@ func Users(a *context.App, c web.C, r *http.Request) *Response {
 }
 
 func UsersData(a *context.App, c web.C, r *http.Request) *Response {
-	log.Debugf("Query params: %v", r.URL.RawQuery)
 
-	users, _ := model.GetAllUsers(a.DB(), true)
-	body, err := MarshalJSON(users)
+	page := ParsePagination(r)
+	pageResult, _ := model.GetUsersByPage(a.DB(), bson.M{}, page)
+	body, err := MarshalJSON(pageResult)
 	if err != nil {
 		log.Errorf("JSON Marshal error: %q", err)
 		body = `{
@@ -52,8 +51,6 @@ func UsersData(a *context.App, c web.C, r *http.Request) *Response {
 			}`
 		return JSON(body)
 	}
-
-	//log.Debug(body)
 
 	return JSON(body)
 }
@@ -70,7 +67,6 @@ func UsersPost(a *context.App, c web.C, r *http.Request) *Response {
 
 	udomains, upermissions := r.FormValue("sUserDomains"), r.FormValue("sUserPermissions")
 	password := random.GenerateUserPassword(8)
-	log.Debugf("User password: %v", password) // SHOULD BE REMOVED
 	user := &model.User{Email: email,
 		Password:    util.HashPassword(password),
 		IsActive:    true,

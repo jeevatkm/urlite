@@ -24,3 +24,29 @@
 $(function() {
     if (typeof wpr === "function") { wpr(); }     
 });
+
+function queryParams(id) {
+    var params = {};
+    $(id).find('input[name]').each(function () {
+        params[$(this).attr('name')] = $(this).val();
+    });
+    return params;
+}
+
+// Bootstrap Table Formatters
+function domainFormatter(v) {
+    var d = v.join(', ')
+    return d == '*' ? 'All Domains' : d;
+}
+
+function prettyDate(v, nd) {
+    if (v == '0001-01-01T00:00:00Z') {
+        return nd || 'Not yet';
+    }
+
+    return $.format.prettyDate(v);
+}
+
+function dateFormatter(v) {
+    return $.format.prettyDate(v);
+}

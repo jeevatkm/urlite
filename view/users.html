@@ -14,46 +14,21 @@
                      </h2>
                     </div>
 		        	<div class="ucontent">
-                        <!-- <table class="table table-striped table-hover table-condensed">
-                            <thead>
-                                <tr>
-                                    <th style="width:30%">Email</th>
-                                    <th style="width:29%">Domains</th>
-                                    <th style="width:18%">Last LoggedIn</th>
-                                    <th style="width:18%">Last API Access</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            {{range .Users}}
-                                <tr {{if not .IsActive}}class="danger"{{end}}>
-                                    <td>{{.Email}}</td>
-                                    <td>{{toCommaStr .Domains}}</td>
-                                    {{if .LastLoggedIn.IsZero}}
-                                        <td>Not yet</td>
-                                    {{else}}
-                                        <td>{{friendlyDateTime .LastLoggedIn}}</td>
-                                    {{end}}
-                                    {{if .LastApiAccessed.IsZero}}                                    
-                                        <td>Not yet</td>
-                                    {{else}}
-                                        <td>{{friendlyDateTime .LastApiAccessed}}</td>
-                                    {{end}}
-                                </tr>
-                            {{end}}
-                            </tbody>
-                        </table> -->
                         <table id="usersTable"
-                               data-toggle="table"
-                               data-url="/admin/users/data"
+                               data-toggle="table"                               
                                data-classes="table table-no-bordered table-striped table-hover"
                                data-pagination="true"
-                               data-page-size="10">
+                               data-ajax="userDataRequest"
+                               data-side-pagination="server"
+                               data-page-size="10"
+                               data-sort-name="last_api_accessed"
+                               data-sort-order="desc">
                             <thead>
                             <tr>
                                 <th data-field="email" style="width:30%">Email</th>
                                 <th data-field="domains" data-formatter="domainFormatter" style="width:29%">Domains</th>
-                                <th data-field="last_logged_in" data-formatter="friendlyDateFormatter" style="width:18%">Last LoggedIn</th>
-                                <th data-field="last_api_accessed" data-formatter="friendlyDateFormatter" style="width:18%">Last API Access</th>
+                                <th data-field="last_logged_in" data-formatter="dateFormatter" style="width:18%">Last LoggedIn</th>
+                                <th data-field="last_api_accessed" data-formatter="dateFormatter" style="width:18%">Last API Access</th>
                             </tr>
                             </thead>
                         </table>
@@ -133,62 +108,25 @@
   </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
 <script type="text/javascript">
-    function queryParams() {
-        var params = {};
-        $('#toolbar').find('input[name]').each(function () {
-            params[$(this).attr('name')] = $(this).val();
+    function userDataRequest(req) {
+        $.ajax({
+            type: 'GET',
+            url: '/admin/users/data',
+            data: req.data,
+            success: function(data){
+                req.success({
+                    total: data.total,
+                    rows: data.result
+                });
+                req.complete();
+            },
+            error: function(){
+                console.log('error in user data request');
+            }
         });
-        return params;
-    }
-
-    // Formatters
-    function domainFormatter(value) {
-        var d = value.join(', ')
-        return d == '*' ? 'All Domains' : d;
-    }
-
-    function friendlyDateFormatter(value) {
-        if (value == '0001-01-01T00:00:00Z') {
-            return 'Not yet';
-        }
-
-        return $.format.prettyDate(value);
     }
 
     function wpr() {
-        //$('.fixed-table-toolbar').find('button[name=refresh]').addClass('btn-sm btn-urlite-g');
-        //$('.fixed-table-toolbar .search').addClass('form-group-sm');
-        //console.log($('.fixed-table-toolbar').find('button[name=refresh]'));
-        /*$('#usersTable').bootstrapTable({
-            url: '/admin/users/data',
-            classes: 'table table-no-bordered table-striped table-hover table-condensed',
-            pagination: true,
-            search: true,
-            pageSize: 2,
-            idField: 'email',
-            //sidePagination: 'server',
-            showRefresh: true,
-            sortName: 'last_api_accessed',
-            rowStyle: function(row, index) {
-                console.log(row + '<-->' + index);
-                return row;
-            },
-            columns: [{
-                field: 'email',
-                title: 'Email Address'
-            }, {
-                field: 'domains',
-                title: 'Domains'
-            }, {
-                field: 'last_logged_in',
-                title: 'Last Logged-In'
-            }, {
-                field: 'last_api_accessed',
-                title: 'Last API Access'
-            }, ]
-        }); */
-        
-
         $("#addUser").click(function(){
             $("#userAddModal")
             .on('shown.bs.modal', function (e) { //var button = $(e.relatedTarget)  //var modal = $(this)

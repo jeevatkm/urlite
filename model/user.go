@@ -16,7 +16,7 @@ const USER_COLLECTION = "users"
 type User struct {
 	ID              bson.ObjectId `bson:"_id,omitempty" json:"-"`
 	Email           string        `bson:"email" json:"email"`
-	Password        string        `bson:"password" json:"password"`
+	Password        string        `bson:"password" json:"-"`
 	IsActive        bool          `bson:"is_active" json:"is_active"`
 	Permissions     []string      `bson:"permissions" json:"permissions"`
 	Bearer          string        `bson:"bearer" json:"bearer"`
@@ -98,6 +98,14 @@ func GetUserByBearer(db *mgo.Database, bearer *string) (user *User, err error) {
 func GetAllUsers(db *mgo.Database, isActive bool) (users []User, err error) {
 	err = db.C(USER_COLLECTION).Find(bson.M{"is_active": isActive}).Sort("-last_api_accessed", "-last_logged_in").All(&users)
 	return
+}
+
+func GetUsersByPage(db *mgo.Database, query bson.M, page *Pagination) (*PaginatedResult, error) {
+	users := []User{}
+	total, err := db.C(USER_COLLECTION).Find(query).Count()
+	err = db.C(USER_COLLECTION).Find(query).Sort(page.Sort).Skip(page.Offset).Limit(page.Limit).All(&users)
+
+	return &PaginatedResult{Total: total, Result: users}, err
 }
 
 func CreateUser(db *mgo.Database, user *User) error {
