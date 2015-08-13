@@ -28,10 +28,9 @@ func Home(a *context.App, c web.C, r *http.Request) *Response {
 }
 
 func Urlite(a *context.App, c web.C, r *http.Request) *Response {
-	shortReq := &model.ShortenRequest{LongUrl: r.FormValue("longUrl"),
+	c.Env["liteReq"] = &model.UrliteRequest{LongUrl: r.FormValue("longUrl"),
 		Domain:     r.FormValue("selectedDomain"),
 		CustomName: r.FormValue("customLinkName")}
-	c.Env["shortReq"] = shortReq
 
 	return api.HandleUrlite(a, c, r)
 }

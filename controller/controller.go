@@ -67,15 +67,6 @@ func (h Handle) ServeHTTPC(c web.C, w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(code)
 		io.WriteString(w, body)
 	} else {
-		// if session, exists := c.Env["Session"]; exists {
-		// 	log.Debug("Saving sessions...")
-		// 	err := session.(*sessions.Session).Save(r, w)
-		// 	if err != nil {
-		// 		log.Errorf("Can't save session: %v", err)
-		// 		code = http.StatusInternalServerError
-		// 	}
-		// }
-
 		switch code {
 		case http.StatusOK:
 			w.Header().Set("Content-Type", contentType)

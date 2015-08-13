@@ -15,38 +15,38 @@ import (
 )
 
 func Urlite(a *context.App, c web.C, r *http.Request) *Response {
-	shortReq := &model.ShortenRequest{}
-	if err := DecodeJSON(r, &shortReq); err != nil {
+	liteReq := &model.UrliteRequest{}
+	if err := DecodeJSON(r, &liteReq); err != nil {
 		log.Errorf("Unmarshal error: %q", err)
 		return errUnmarshal()
 	}
-	c.Env["shortReq"] = shortReq
+	c.Env["liteReq"] = liteReq
 	return HandleUrlite(a, c, r)
 }
 
 func HandleUrlite(a *context.App, c web.C, r *http.Request) *Response {
-	shortReq := c.Env["shortReq"].(*model.ShortenRequest)
-	if !shortReq.IsValid() {
+	liteReq := c.Env["liteReq"].(*model.UrliteRequest)
+	if !liteReq.IsValid() {
 		msg := "Either Long URL or Domain is not provided"
 		log.Error(msg)
 		return errBadRequest(msg)
 	}
 
 	u := GetUser(c)
-	if !util.Contains(u.Domains, shortReq.Domain) && !u.IsAdmin() {
+	if !util.Contains(u.Domains, liteReq.Domain) && !u.IsAdmin() {
 		msg := "You do not have access to given domain"
 		log.Errorf("%v: %v", u.Email, msg)
 		return errForbidden(msg)
 	}
 
-	domain, err := a.GetDomainDetail(shortReq.Domain)
+	domain, err := a.GetDomainDetail(liteReq.Domain)
 	if err != nil {
 		log.Errorf("Invalid domain: %v", err)
 		return errInvalidDomain()
 	}
 
 	urlite := ""
-	urliteId := strings.TrimSpace(shortReq.CustomName)
+	urliteId := strings.TrimSpace(liteReq.CustomName)
 
 	if len(urliteId) > 0 { // Custom name mode
 		log.Debug("Custom name mode")
@@ -73,7 +73,7 @@ func HandleUrlite(a *context.App, c web.C, r *http.Request) *Response {
 	urlite = domain.ComposeUrlite(&urliteId)
 	ul := &model.Urlite{ID: urliteId,
 		Urlite:      urlite,
-		LongUrl:     strings.TrimSpace(shortReq.LongUrl),
+		LongUrl:     strings.TrimSpace(liteReq.LongUrl),
 		CreatedBy:   u.ID.Hex(),
 		CreatedTime: time.Now()}
 	err = model.CreateUrlite(a.DB(), domain.CollName, ul)
@@ -82,7 +82,7 @@ func HandleUrlite(a *context.App, c web.C, r *http.Request) *Response {
 		return errGenerateUrlite()
 	}
 
-	sr := &model.ShortenResponse{Urlite: urlite}
+	sr := &model.UrliteResponse{Urlite: urlite}
 	result, err := MarshalJSON(sr)
 	if err != nil {
 		log.Errorf("JSON Marshal error: %q", err)

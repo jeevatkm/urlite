@@ -4,13 +4,13 @@ import (
 	"strings"
 )
 
-type ShortenRequest struct {
+type UrliteRequest struct {
 	LongUrl    string `json:"long_url"`
 	Domain     string `json:"domain"`
 	CustomName string `json:"custom_name"`
 }
 
-func (s *ShortenRequest) IsValid() bool {
+func (s *UrliteRequest) IsValid() bool {
 	s.LongUrl = strings.TrimSpace(s.LongUrl)
 	s.Domain = strings.TrimSpace(s.Domain)
 	s.CustomName = strings.TrimSpace(s.CustomName)

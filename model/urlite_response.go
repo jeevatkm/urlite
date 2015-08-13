@@ -1,5 +1,5 @@
 package model
 
-type ShortenResponse struct {
+type UrliteResponse struct {
 	Urlite string `json:"urlite"`
 }
