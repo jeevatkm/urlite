@@ -50,11 +50,12 @@
       </div>
       <div class="modal-body">
         <div class="container-fluid">
+            <div id="modal_alert"></div>
             <form id="userForm" method="post" class="form-horizontal">
                 <div class="form-group has-feedback">
                     <label for="email" class="col-sm-4 control-label">Email Address</label>
                     <div class="col-sm-7">
-                        <input type="email" class="form-control" id="uemail" name="uemail" placeholder="User email address" data-error="User email address is required" required>
+                        <input type="email" class="form-control" id="uemail" name="uemail" placeholder="User email address" data-remote-error="Email address already exists" data-error="User email address is required" data-remote="/admin/users/validate" required>
                         <span class="help-block with-errors"></span>
                     </div>                    
                 </div>
@@ -110,19 +111,19 @@
 <script type="text/javascript">
     function userDataRequest(req) {
         $.ajax({
-            type: 'GET',
             url: '/admin/users/data',
-            data: req.data,
-            success: function(data){
-                req.success({
-                    total: data.total,
-                    rows: data.result
-                });
-                req.complete();
-            },
-            error: function(){
-                console.log('error in user data request');
-            }
+            data: req.data
+        })
+        .done(function(data) {
+            req.success({
+                total: data.total,
+                rows: data.result
+            });
+            req.complete();
+        })
+        .fail(function(xhr, status, errorThrown) {
+            res = xhr.responseJSON;
+            $('#alert_container').bsAlert(res.message, 'error');
         });
     }
 
@@ -161,10 +162,26 @@
                     permissions.push($(this).val());
                 });
                 $('#sUserPermissions').val(permissions.join(','));
+
+                $.ajax({
+                    url: '/admin/users',
+                    type: 'POST',
+                    data: $('#userForm').serialize()
+                })
+                .done(function(data) {
+                    $("#userAddModal").modal('hide');
+                    $('#userCount').text(data.user_count);
+                    $('#alert_container').bsAlert(data.message).bsHideAlert();
+                    $('#usersTable').bootstrapTable('refresh', {silent: true});
+                })
+                .fail(function(xhr, status, errorThrown) {
+                    res = xhr.responseJSON;
+                    $('#modal_alert').bsAlert(res.message, 'error');
+                });
+
+                return false;
             }
         });
-
-        {{if .AlertMsg}}$('#alert_container').bsAlert('{{.AlertMsg}}', '{{.AlertType}}').bsHideAlert();{{end}}
     }
 </script>
 {{end}}

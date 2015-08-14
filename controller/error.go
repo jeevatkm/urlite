@@ -31,13 +31,17 @@ func ErrForbidden(m string) *Response {
 	return JSONc(cError("forbidden", m), http.StatusForbidden)
 }
 
+func ErrValidation(m string) *Response {
+	return JSONc(cError("validation", m), http.StatusBadRequest)
+}
+
 // Functional Errors
 func ErrUnmarshal() *Response {
 	return ErrBadRequest("The request could not be understood by the urlite api due to bad syntax")
 }
 
 func ErrInvalidDomain() *Response {
-	return JSONc(cError("bad_request", "Invalid domain"), http.StatusBadRequest)
+	return ErrValidation("Invalid domain")
 }
 
 func ErrGenerateUrlite() *Response {

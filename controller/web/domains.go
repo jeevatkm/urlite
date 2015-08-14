@@ -61,8 +61,13 @@ func DomainsValidate(a *context.App, c web.C, r *http.Request) *Response {
 				nDColl := fmt.Sprintf("%v%d", dColl, i)
 				res = a.CheckDomainCollName(nDColl)
 				if !res {
-					body := `{"id":"bad_request","message": "Collection already exists","suggested_name": "` + nDColl + `"}`
-					response = JSONc(body, http.StatusBadRequest)
+					data := Data{
+						"id":             "validation",
+						"message":        "Collection already exists",
+						"suggested_name": nDColl,
+					}
+
+					response = PrepareJSONc(data, http.StatusBadRequest, GENERIC_ERROR_MSG)
 					break
 				}
 			}
@@ -99,8 +104,11 @@ func DomainsPost(a *context.App, c web.C, r *http.Request) *Response {
 	d, _ := model.GetDomain(a.DB(), &dName)
 	a.AddDomain(d)
 	msg := "Successfully added domain: " + dName
+	data := Data{
+		"id":      ALERT_SUCCESS,
+		"message": msg,
+	}
 	log.Info(msg)
 
-	body := `{"id":"success","message": "` + msg + `"}`
-	return JSON(body)
+	return PrepareJSON(data, GENERIC_ERROR_MSG)
 }

@@ -63,7 +63,7 @@ function prettyDate(v, nd) {
 }
 
 function dateFormatter(v) {
-    return $.format.prettyDate(v);
+    return prettyDate(v);
 }
 
 // Reference: http://stackoverflow.com/a/2723190/1343356

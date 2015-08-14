@@ -39,9 +39,9 @@ func Users(a *context.App, c web.C, r *http.Request) *Response {
 }
 
 func UsersData(a *context.App, c web.C, r *http.Request) *Response {
-
 	page := ParsePagination(r)
 	pageResult, _ := model.GetUsersByPage(a.DB(), bson.M{}, page)
+
 	body, err := MarshalJSON(pageResult)
 	if err != nil {
 		log.Errorf("JSON Marshal error: %q", err)
@@ -52,14 +52,31 @@ func UsersData(a *context.App, c web.C, r *http.Request) *Response {
 	return JSON(body)
 }
 
+func UsersValidate(a *context.App, c web.C, r *http.Request) *Response {
+	var response *Response
+
+	// Email address exists check validation
+	email := strings.TrimSpace(r.FormValue("uemail"))
+	log.Debugf("uemail: %v", email)
+	if len(email) > 0 {
+		euser, _ := model.GetUserByEmail(a.DB(), email)
+		if euser != nil {
+			response = ErrValidation("Email address already exists")
+		} else {
+			response = JSON("{}")
+		}
+	}
+
+	return response
+}
+
 func UsersPost(a *context.App, c web.C, r *http.Request) *Response {
-	email := r.FormValue("uemail")
+	email := strings.TrimSpace(r.FormValue("uemail"))
 	euser, _ := model.GetUserByEmail(a.DB(), email)
 	if euser != nil {
 		m := fmt.Sprintf("User already exists with given email id: '%v'", email)
 		log.Error(m)
-		SetErrorAlert(c, m)
-		return Users(a, c, r)
+		return ErrBadRequest(m)
 	}
 
 	udomains, upermissions := r.FormValue("sUserDomains"), r.FormValue("sUserPermissions")
@@ -76,13 +93,18 @@ func UsersPost(a *context.App, c web.C, r *http.Request) *Response {
 	err := model.CreateUser(a.DB(), user)
 	if err != nil {
 		log.Errorf("Unable to create user: %q", err)
-		SetErrorAlert(c, "Unable to create user: "+email)
-		return Users(a, c, r)
+		return ErrInternalServer("Unable to create user, due to server issue")
 	}
 
-	c.Env["UserCount"] = model.GetActiveUserCount(a.DB())
+	userCount := model.GetActiveUserCount(a.DB())
 	msg := "Successfully added user: " + email + ", notification has been sent with user password."
-	SetSuccessAlert(c, msg)
+
+	data := Data{
+		"id":         ALERT_SUCCESS,
+		"message":    msg,
+		"user_count": userCount,
+	}
 	log.Info(msg)
-	return Users(a, c, r)
+
+	return PrepareJSON(data, GENERIC_ERROR_MSG)
 }

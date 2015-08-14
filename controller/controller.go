@@ -16,13 +16,14 @@ import (
 )
 
 const (
-	TEXT_CONTENT  = "text/plain"
-	HTML_CONTENT  = "text/html; charset=utf-8"
-	JSON_CONTENT  = "application/json; charset=utf-8"
-	ALERT_SUCCESS = "success"
-	ALERT_INFO    = "info"
-	ALERT_WARN    = "warning"
-	ALERT_ERROR   = "error"
+	TEXT_CONTENT      = "text/plain"
+	HTML_CONTENT      = "text/html; charset=utf-8"
+	JSON_CONTENT      = "application/json; charset=utf-8"
+	ALERT_SUCCESS     = "success"
+	ALERT_INFO        = "info"
+	ALERT_WARN        = "warning"
+	ALERT_ERROR       = "error"
+	GENERIC_ERROR_MSG = "Oops! something went wrong"
 )
 
 type Response struct {
@@ -187,14 +188,25 @@ func JSON(body string) *Response {
 	return JSONc(body, http.StatusOK)
 }
 
-func PrepareJSON(v interface{}, errMsg string) *Response {
+func PrepareJSONc(v interface{}, code int, errMsg string) *Response {
 	result, err := MarshalJSON(v)
 	if err != nil {
 		log.Errorf("JSON Marshal error: %q", err)
 		return ErrInternalServer(errMsg)
 	}
 
-	return JSON(result)
+	return JSONc(result, code)
+}
+
+func PrepareJSON(v interface{}, errMsg string) *Response {
+	return PrepareJSONc(v, http.StatusOK, errMsg)
+	// result, err := MarshalJSON(v)
+	// if err != nil {
+	// 	log.Errorf("JSON Marshal error: %q", err)
+	// 	return ErrInternalServer(errMsg)
+	// }
+
+	// return JSON(result)
 }
 
 func CheckError(err error) int {

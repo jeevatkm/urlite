@@ -68,6 +68,7 @@ func main() {
 	ar.Get("/domains/validate", ctr.Handle{context, web.DomainsValidate})
 	ar.Post("/domains", ctr.Handle{context, web.DomainsPost})
 	ar.Get("/users", ctr.Handle{context, web.Users})
+	ar.Get("/users/validate", ctr.Handle{context, web.UsersValidate})
 	ar.Get("/users/data", ctr.Handle{context, web.UsersData})
 	ar.Post("/users", ctr.Handle{context, web.UsersPost})
 
