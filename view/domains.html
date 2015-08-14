@@ -137,7 +137,7 @@
                 .done(function(data, status, xhr) {
                     $("#domainAddModal").modal('hide');
                     $('#alert_container').bsAlert(data.message).bsHideAlert();
-                    $('domainsTable').bootstrapTable('refresh');
+                    $('#domainsTable').bootstrapTable('refresh', {silent: true});
                 })
                 .fail(function(xhr, status, errorThrown) {
                     res = xhr.responseJSON;

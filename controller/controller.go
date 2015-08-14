@@ -124,11 +124,10 @@ func ParsePagination(r *http.Request) *model.Pagination {
 	// "<URL>?sort=last_api_accessed&order=desc&limit=2&offset=4"
 	log.Debugf("Query params: %v", r.URL.RawQuery)
 
-	qs := r.URL.Query()
-	limit, _ := strconv.Atoi(qs.Get("limit"))
-	offset, _ := strconv.Atoi(qs.Get("offset"))
-	sort := qs.Get("sort")
-	order := qs.Get("order")
+	limit, _ := strconv.Atoi(r.FormValue("limit"))
+	offset, _ := strconv.Atoi(r.FormValue("offset"))
+	sort := r.FormValue("sort")
+	order := r.FormValue("order")
 	if order == "desc" {
 		sort = "-" + sort
 	}
