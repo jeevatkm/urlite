@@ -83,6 +83,7 @@ func main() {
 	apirt.Use(middleware.ApiAuth(context))
 	apirt.Post("/urlite", ctr.Handle{context, api.Urlite})
 	apirt.Get("/stats", ctr.Handle{context, api.Stats})
+	apirt.Get("/stats/:name", ctr.Handle{context, api.Stats})
 	apirt.Get("/domains", ctr.Handle{context, api.Domains})
 	apirt.Get("/domains/:name", ctr.Handle{context, api.Domains})
 

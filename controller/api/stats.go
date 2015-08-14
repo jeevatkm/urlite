@@ -2,28 +2,29 @@ package api
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/jeevatkm/urlite/context"
 	"github.com/zenazn/goji/web"
 
-	log "github.com/Sirupsen/logrus"
 	. "github.com/jeevatkm/urlite/controller"
 )
 
-type Domain struct {
-	Name         string `json:"name"`
-	Total        int64  `json:"total"`
-	Urlite       int64  `json:"urlite"`
-	CustomUrlite int64  `json:"custom_urlite"`
-}
-
-type UrliteStats struct {
-	TotalUrlite int64     `json:"total_urlite"`
-	DomainCount int       `json:"domain_count"`
-	Domains     []*Domain `json:"domains"`
-}
-
 func Stats(a *context.App, c web.C, r *http.Request) *Response {
+	// Individual domain stats
+	dName := strings.TrimSpace(c.URLParams["name"])
+	if len(dName) > 0 {
+		if domain, ok := a.Domains[dName]; ok {
+			info := &Domain{Name: domain.Name,
+				Total:        domain.LinkCount + domain.CustomLinkCount,
+				Urlite:       domain.LinkCount,
+				CustomUrlite: domain.CustomLinkCount}
+			return PrepareJSON(info, "Unable to generate urlite stats")
+		}
+		return ErrInvalidDomain()
+	}
+
+	// For all domains stats
 	stats := &UrliteStats{}
 	stats.Domains = []*Domain{}
 	var all int64
@@ -38,11 +39,6 @@ func Stats(a *context.App, c web.C, r *http.Request) *Response {
 
 	stats.TotalUrlite = all
 	stats.DomainCount = len(a.Domains)
-	result, err := MarshalJSON(stats)
-	if err != nil {
-		log.Errorf("JSON Marshal error: %q", err)
-		return errInternalServer("Unable to generate urlite stats")
-	}
 
-	return JSON(result)
+	return PrepareJSON(stats, "Unable to generate urlite stats")
 }

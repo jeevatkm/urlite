@@ -35,6 +35,19 @@ type Response struct {
 
 type Data map[string]interface{}
 
+type Domain struct {
+	Name         string `json:"name"`
+	Total        int64  `json:"total"`
+	Urlite       int64  `json:"urlite"`
+	CustomUrlite int64  `json:"custom_urlite"`
+}
+
+type UrliteStats struct {
+	TotalUrlite int64     `json:"total_urlite"`
+	DomainCount int       `json:"domain_count"`
+	Domains     []*Domain `json:"domains"`
+}
+
 type Handle struct {
 	*context.App
 	H func(*context.App, web.C, *http.Request) *Response
@@ -172,6 +185,16 @@ func JSONc(body string, code int) *Response {
 
 func JSON(body string) *Response {
 	return JSONc(body, http.StatusOK)
+}
+
+func PrepareJSON(v interface{}, errMsg string) *Response {
+	result, err := MarshalJSON(v)
+	if err != nil {
+		log.Errorf("JSON Marshal error: %q", err)
+		return ErrInternalServer(errMsg)
+	}
+
+	return JSON(result)
 }
 
 func CheckError(err error) int {

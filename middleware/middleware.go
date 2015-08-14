@@ -132,7 +132,7 @@ func MediaTypeCheck(c *web.C, h http.Handler) http.Handler {
 func ApiAuth(a *context.App) func(*web.C, http.Handler) http.Handler {
 	return func(c *web.C, h http.Handler) http.Handler {
 		fn := func(w http.ResponseWriter, r *http.Request) {
-			if r.URL.Path != "/stats" {
+			if !strings.HasPrefix(r.URL.Path, "/stats") {
 				auth := r.Header.Get("Authorization")
 				if !strings.HasPrefix(auth, "Bearer ") {
 					log.Error("User bearer is not provided")
