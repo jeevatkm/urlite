@@ -43,13 +43,15 @@
       </div>
       <div class="modal-body">
         <div class="container-fluid">
+            <div id="modal_alert"></div>
             <form id="domainForm" method="post" class="form-horizontal">
                 <div class="form-group has-feedback">
                     <label for="dName" class="col-sm-4 control-label">Domain Name</label>
                     <div class="col-sm-7">
-                        <input type="text" data-minlength="4" class="form-control" id="dName" name="dName" placeholder="Domain Name" data-error="Minimum 4 characters and domain name is required!" required>
+                        <input type="text" data-minlength="4" class="form-control" id="dName" name="dName" placeholder="Domain Name" data-remote-error="Domain already exists" data-error="Minimum 4 characters!" data-remote="/admin/domains/validate" required>
                         <div class="help-block with-errors"></div>
-                    </div>                    
+                    </div>
+                    <!--   -->         
                 </div>
                 <div class="form-group">
                     <label for="dName" class="col-sm-4 control-label">Domain Scheme</label>
@@ -81,9 +83,15 @@
 </div><!-- /.modal -->
 <script type="text/javascript">
     function domainRequestHandler(res) {
+        $('#domainCount').text(res.domain_count);
         d = res.domains;
         d.sortBy('-total');
         return d;
+    }
+
+    function assignCollName(n) {
+        $('#dColl').val('urlite_' + n);
+        $('#dStatsColl').val('urlite_' + n + '_stats');
     }
 
     function wpr() {
@@ -100,22 +108,48 @@
 
         $('#dName').focusout(function() {
             var v = $(this).val();
-            v = v.replace(/[\.|_|-]/g,'');
-            v = v.length > 4 ? v.substr(0, 4) : v
-            $('#dColl').val('urlite_' + v);
-            $('#dStatsColl').val('urlite_' + v + '_stats');
+            if (v != "") {
+                v = v.replace(/[\.|_|-]/g,'');
+                v = v.length > 4 ? v.substr(0, 4) : v
+
+                $.ajax({
+                    url: '/admin/domains/validate',
+                    data: 'dColl=' + v
+                })
+                .done(function(data, status, xhr) {
+                    assignCollName(v);
+                })
+                .fail(function(xhr, status, errorThrown) {
+                    assignCollName(xhr.responseJSON.suggested_name);
+                });
+            }
         });
 
         $('#domainForm').validator().on('submit', function (e) {
             if (e.isDefaultPrevented()) {
                 return false;
-            } 
-            // else {
-            //     console.log('looks good');
-            // }
+            } else {
+                $.ajax({
+                    url: '/admin/domains',
+                    type: 'POST',
+                    data: $('#domainForm').serialize()
+                })
+                .done(function(data, status, xhr) {
+                    $("#domainAddModal").modal('hide');
+                    $('#alert_container').bsAlert(data.message).bsHideAlert();
+                    $('domainsTable').bootstrapTable('refresh');
+                })
+                .fail(function(xhr, status, errorThrown) {
+                    res = xhr.responseJSON;
+                    $('#modal_alert').bsAlert(res.message, 'error');
+                });
+
+                return false;
+            }
         });
 
-        {{if .AlertMsg}}$('#alert_container').bsAlert('{{.AlertMsg}}', '{{.AlertType}}').bsHideAlert();{{end}}
+        $('#dColl').keypress(function(e) {e.preventDefault(); return false;});
+        $('#dStatsColl').keypress(function(e) {e.preventDefault(); return false;});
     }
 </script>
 {{end}}

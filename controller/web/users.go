@@ -45,10 +45,7 @@ func UsersData(a *context.App, c web.C, r *http.Request) *Response {
 	body, err := MarshalJSON(pageResult)
 	if err != nil {
 		log.Errorf("JSON Marshal error: %q", err)
-		body = `{
-			"status":"error",
-			"message": "Unable to users list."
-			}`
+		body = `{"status":"error","message": "Unable to users list."}`
 		return JSON(body)
 	}
 

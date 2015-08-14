@@ -254,6 +254,17 @@ func (a *App) AddDomain(d *model.Domain) {
 	a.LinkState[d.Name] = false
 }
 
+func (a *App) CheckDomainCollName(name string) bool {
+	dColl := "urlite_" + name
+	for _, v := range a.Domains {
+		if v.CollName == dColl {
+			return true
+		}
+	}
+
+	return false
+}
+
 // func (a *App) AllLinkCount() (al int64) {
 // 	for _, v := range a.Domains {
 // 		al += v.LinkCount + v.CustomLinkCount

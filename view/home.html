@@ -42,7 +42,7 @@
             })
             .fail(function(xhr, status, errorThrown) {
                 $('#alert_container').bsAlert(xhr.responseJSON.message, 'error').bsHideAlert();
-            })
+            });
         }
     }
 

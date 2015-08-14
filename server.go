@@ -65,6 +65,7 @@ func main() {
 	ar.Get("/", http.RedirectHandler("/admin/dashboard", 301))
 	ar.Get("/dashboard", ctr.Handle{context, web.Dashboard})
 	ar.Get("/domains", ctr.Handle{context, web.Domains})
+	ar.Get("/domains/validate", ctr.Handle{context, web.DomainsValidate})
 	ar.Post("/domains", ctr.Handle{context, web.DomainsPost})
 	ar.Get("/users", ctr.Handle{context, web.Users})
 	ar.Get("/users/data", ctr.Handle{context, web.UsersData})

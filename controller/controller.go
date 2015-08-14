@@ -81,8 +81,9 @@ func (h Handle) ServeHTTPC(c web.C, w http.ResponseWriter, r *http.Request) {
 		io.WriteString(w, body)
 	} else {
 		switch code {
-		case http.StatusOK:
+		case http.StatusOK: // http.StatusBadRequest
 			w.Header().Set("Content-Type", contentType)
+			w.WriteHeader(code)
 			io.WriteString(w, body)
 		case http.StatusSeeOther, http.StatusFound:
 			http.Redirect(w, r, res.Redirect, code)
