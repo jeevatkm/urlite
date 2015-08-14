@@ -66,7 +66,7 @@ func main() {
 	ar.Get("/dashboard", ctr.Handle{context, web.Dashboard})
 	ar.Get("/domains", ctr.Handle{context, web.Domains})
 	ar.Post("/domains", ctr.Handle{context, web.DomainsPost})
-	ar.Get("/users", ctr.Handle{context, web.Users}) 
+	ar.Get("/users", ctr.Handle{context, web.Users})
 	ar.Get("/users/data", ctr.Handle{context, web.UsersData})
 	ar.Post("/users", ctr.Handle{context, web.UsersPost})
 
@@ -82,6 +82,7 @@ func main() {
 	apirt.Use(middleware.MediaTypeCheck)
 	apirt.Use(middleware.ApiAuth(context))
 	apirt.Post("/urlite", ctr.Handle{context, api.Urlite})
+	apirt.Get("/stats", ctr.Handle{context, api.Stats})
 	apirt.Get("/domains", ctr.Handle{context, api.Domains})
 	apirt.Get("/domains/:name", ctr.Handle{context, api.Domains})
 
