@@ -14,28 +14,19 @@
                      </h2>                     
                     </div>
 		        	<div class="dcontent">
-                        <table class="table table-striped table-hover table-condensed">
+                        <table id="domainsTable"
+                               data-toggle="table"                               
+                               data-classes="table table-no-bordered table-striped table-hover"
+                               data-response-handler="domainRequestHandler"
+                               data-url="/api/stats">
                             <thead>
-                                <tr>
-                                    <th style="width:3%">Scheme</th>
-                                    <th style="width:15%">Name</th>
-                                    <th style="width:15%">Total Urlite</th>
-                                    <th style="width:15%">Urlite</th>
-                                    <th style="width:15%">Custom Urlite</th>
-                                </tr>
+                            <tr>
+                                <th data-field="name" data-width="280px">Name</th>
+                                <th data-field="total" data-width="280px">Total Urlite</th>
+                                <th data-field="urlite" data-width="170px">Urlite</th>
+                                <th data-field="custom_urlite" data-width="170px">Custom Urlite</th>
+                            </tr>
                             </thead>
-                            <tbody>
-                            {{range .Domains}}
-                                <tr>
-                                    <td>{{.Scheme}}</td>
-                                    <td>{{.Name}}</td>
-                                    {{$total := add .LinkCount .CustomLinkCount}}
-                                    <td>{{num2str $total ','}}</td>
-                                    <td>{{num2str .LinkCount ','}}</td>
-                                    <td>{{num2str .CustomLinkCount ','}}</td>
-                                </tr>
-                            {{end}}
-                            </tbody>
                         </table>
 		        	</div><!--/.dcontent -->
 		        </div> <!--/.main -->
@@ -89,6 +80,12 @@
   </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
 <script type="text/javascript">
+    function domainRequestHandler(res) {
+        d = res.domains;
+        d.sortBy('-total');
+        return d;
+    }
+
     function wpr() {
         $("#addDomain").click(function(){
             $("#domainAddModal")
