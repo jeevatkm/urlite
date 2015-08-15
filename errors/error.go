@@ -6,9 +6,9 @@ import (
 )
 
 type Error struct {
-	Id      string                 `json:"id"`
-	Message string                 `json:"message"`
-	Values  map[string]interface{} `json:"values"`
+	Id      string                  `json:"id"`
+	Message string                  `json:"message"`
+	Values  *map[string]interface{} `json:"values,omitempty"`
 }
 
 func (e *Error) Error() string {
@@ -28,6 +28,6 @@ func New(id, msg string) *Error {
 	return &Error{Id: id, Message: msg}
 }
 
-func Newv(id string, msg string, values map[string]interface{}) *Error {
+func Newv(id string, msg string, values *map[string]interface{}) *Error {
 	return &Error{Id: id, Message: msg, Values: values}
 }
