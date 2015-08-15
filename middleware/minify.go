@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"bytes"
-	"log"
 	"net/http"
 	"regexp"
 
@@ -12,8 +11,10 @@ import (
 	"github.com/tdewolff/minify/js"
 )
 
-var minifier *minify.Minify
-var mt []*regexp.Regexp // Media Type
+var (
+	minifier  *minify.Minify
+	mediaType *regexp.Regexp
+)
 
 func init() {
 	minifier = minify.New()
@@ -21,10 +22,7 @@ func init() {
 	minifier.AddFunc("text/css", css.Minify)
 	minifier.AddFunc("text/javascript", js.Minify)
 
-	mt = []*regexp.Regexp{}
-	mt = append(mt, regexp.MustCompile("[text|application]/html"))
-	mt = append(mt, regexp.MustCompile("text/[css|stylesheet]"))
-	mt = append(mt, regexp.MustCompile("[text|application]/javascript"))
+	mediaType = regexp.MustCompile("[text|application]/[html|css|stylesheet|javascript]")
 }
 
 type minifyWriter struct {
@@ -56,16 +54,6 @@ func (m *minifyWriter) Write(b []byte) (int, error) {
 	return len(b), nil
 }
 
-func isValidMediaType(t string) bool {
-	for _, v := range mt {
-		if v.MatchString(t) {
-			return true
-		}
-	}
-
-	return false
-}
-
 func MinifyHandler(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		mw := &minifyWriter{
@@ -76,8 +64,7 @@ func MinifyHandler(h http.Handler) http.Handler {
 		h.ServeHTTP(mw, r)
 
 		ct := w.Header().Get("Content-Type")
-		if isValidMediaType(ct) {
-			log.Println("Inside minify")
+		if mediaType.MatchString(ct) {
 			rb, err := minify.Bytes(minifier, ct, mw.Body.Bytes())
 			if err != nil {
 				_ = err // unsupported mediatype error or internal
