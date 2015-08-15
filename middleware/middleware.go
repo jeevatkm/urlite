@@ -8,11 +8,12 @@ import (
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
 
-	log "github.com/Sirupsen/logrus"
 	"github.com/gorilla/sessions"
 	"github.com/jeevatkm/urlite/context"
 	"github.com/jeevatkm/urlite/model"
 	"github.com/zenazn/goji/web"
+
+	log "github.com/Sirupsen/logrus"
 )
 
 func AppInfo(a *context.App) func(*web.C, http.Handler) http.Handler {
@@ -21,7 +22,6 @@ func AppInfo(a *context.App) func(*web.C, http.Handler) http.Handler {
 			c.Env["Config"] = a.Config
 			c.Env["AppVersion"] = context.VERSION
 			c.Env["DomainCount"] = len(a.Domains)
-			//c.Env["AllLinkCount"] = a.AllLinkCount()
 
 			h.ServeHTTP(w, r)
 		}
@@ -34,7 +34,7 @@ func Session(a *context.App) func(*web.C, http.Handler) http.Handler {
 	return func(c *web.C, h http.Handler) http.Handler {
 		fn := func(w http.ResponseWriter, r *http.Request) {
 			// No session for Path /api/* since it's token based
-			if !isApiRoute(r) {
+			if !isRoute(r, "/api") {
 				session, err := a.Store.Get(r, "urlite-session")
 
 				if err == nil { // No error we got the session
@@ -59,9 +59,9 @@ func Session(a *context.App) func(*web.C, http.Handler) http.Handler {
 func Auth(a *context.App) func(*web.C, http.Handler) http.Handler {
 	return func(c *web.C, h http.Handler) http.Handler {
 		fn := func(w http.ResponseWriter, r *http.Request) {
-			if isApiRoute(r) {
+			if isRoute(r, "/api") {
 				c.Env["ReqMode"] = "API"
-			} else {
+			} else if !isRoute(r, "/static", "/favicon.ico", "/robots.txt") {
 				c.Env["ReqMode"] = "WEB"
 				session := c.Env["Session"].(*sessions.Session)
 
@@ -170,8 +170,13 @@ func ApiAuth(a *context.App) func(*web.C, http.Handler) http.Handler {
 	}
 }
 
-func isApiRoute(r *http.Request) bool {
-	return strings.HasPrefix(r.URL.Path, "/api")
+func isRoute(r *http.Request, rts ...string) bool {
+	for _, rt := range rts {
+		if strings.HasPrefix(r.URL.Path, rt) {
+			return true
+		}
+	}
+	return false
 }
 
 func authRequired(w http.ResponseWriter) {

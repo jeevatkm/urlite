@@ -35,6 +35,7 @@ func main() {
 
 	// Middleware
 	goji.Use(groc.ClearHandler) // Gorilla session clear
+	goji.Use(middleware.MinifyHandler)
 	goji.Use(middleware.AppInfo(context))
 	goji.Use(middleware.Session(context))
 	goji.Use(middleware.Auth(context))
