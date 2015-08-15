@@ -9,6 +9,7 @@ import (
 
 	"github.com/gorilla/sessions"
 	"github.com/jeevatkm/urlite/context"
+	"github.com/jeevatkm/urlite/errors"
 	"github.com/jeevatkm/urlite/model"
 	"github.com/zenazn/goji/web"
 
@@ -200,13 +201,31 @@ func PrepareJSONc(v interface{}, code int, errMsg string) *Response {
 
 func PrepareJSON(v interface{}, errMsg string) *Response {
 	return PrepareJSONc(v, http.StatusOK, errMsg)
-	// result, err := MarshalJSON(v)
-	// if err != nil {
-	// 	log.Errorf("JSON Marshal error: %q", err)
-	// 	return ErrInternalServer(errMsg)
-	// }
+}
 
-	// return JSON(result)
+func ErrBadRequest(msg string) *Response {
+	err := errors.New("bad_request", msg)
+	return JSONc(err.JSON(), http.StatusBadRequest)
+}
+
+func ErrInternalServer(msg string) *Response {
+	err := errors.New("server_error", msg)
+	return JSONc(err.JSON(), http.StatusInternalServerError)
+}
+
+func ErrConflict(msg string) *Response {
+	err := errors.New("server_error", msg)
+	return JSONc(err.JSON(), http.StatusConflict)
+}
+
+func ErrForbidden(msg string) *Response {
+	err := errors.New("forbidden", msg)
+	return JSONc(err.JSON(), http.StatusForbidden)
+}
+
+func ErrValidation(msg string) *Response {
+	err := errors.New("validation", msg)
+	return JSONc(err.JSON(), http.StatusBadRequest)
 }
 
 func CheckError(err error) int {

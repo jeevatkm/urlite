@@ -18,7 +18,7 @@ func Urlite(a *context.App, c web.C, r *http.Request) *Response {
 	liteReq := &model.UrliteRequest{}
 	if err := DecodeJSON(r, &liteReq); err != nil {
 		log.Errorf("Unmarshal error: %q", err)
-		return ErrUnmarshal()
+		return ErrBadRequest("The request could not be understood by the urlite api due to bad syntax")
 	}
 	c.Env["liteReq"] = liteReq
 	return HandleUrlite(a, c, r)
@@ -42,7 +42,7 @@ func HandleUrlite(a *context.App, c web.C, r *http.Request) *Response {
 	domain, err := a.GetDomainDetail(liteReq.Domain)
 	if err != nil {
 		log.Errorf("Invalid domain: %v", err)
-		return ErrInvalidDomain()
+		return ErrValidation("Invalid domain")
 	}
 
 	urlite := ""
@@ -64,7 +64,7 @@ func HandleUrlite(a *context.App, c web.C, r *http.Request) *Response {
 		turliteId, err := a.GetUrliteID(domain.Name, linkNum)
 		if err != nil {
 			log.Errorf("Unable to generate hashid for number[%d]: %q", linkNum, err)
-			return ErrGenerateUrlite()
+			return ErrInternalServer("Unable to generate urlite")
 		}
 
 		urliteId = turliteId
@@ -79,14 +79,14 @@ func HandleUrlite(a *context.App, c web.C, r *http.Request) *Response {
 	err = model.CreateUrlite(a.DB(), domain.CollName, ul)
 	if err != nil {
 		log.Errorf("Unable to insert new urlite into db: %q", err)
-		return ErrGenerateUrlite()
+		return ErrInternalServer("Unable to generate urlite")
 	}
 
 	sr := &model.UrliteResponse{Urlite: urlite}
 	result, err := MarshalJSON(sr)
 	if err != nil {
 		log.Errorf("JSON Marshal error: %q", err)
-		return ErrGenerateUrlite()
+		return ErrInternalServer("Unable to generate urlite")
 	}
 
 	return JSONch(result, http.StatusCreated, map[string]string{"Location": urlite})

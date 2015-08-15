@@ -21,7 +21,7 @@ func Stats(a *context.App, c web.C, r *http.Request) *Response {
 				CustomUrlite: domain.CustomLinkCount}
 			return PrepareJSON(info, "Unable to generate urlite stats")
 		}
-		return ErrInvalidDomain()
+		return ErrValidation("Invalid domain")
 	}
 
 	// For all domains stats
