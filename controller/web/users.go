@@ -39,8 +39,8 @@ func Users(a *context.App, c web.C, r *http.Request) *Response {
 }
 
 func UsersData(a *context.App, c web.C, r *http.Request) *Response {
-	page := ParsePagination(r)
-	pageResult, _ := model.GetUsersByPage(a.DB(), bson.M{}, page)
+	page, db := ParsePagination(r), a.DB(&c)
+	pageResult, _ := model.GetUsersByPage(db, bson.M{}, page)
 
 	body, err := MarshalJSON(pageResult)
 	if err != nil {
@@ -59,7 +59,7 @@ func UsersValidate(a *context.App, c web.C, r *http.Request) *Response {
 	email := strings.TrimSpace(r.FormValue("uemail"))
 	log.Debugf("uemail: %v", email)
 	if len(email) > 0 {
-		euser, _ := model.GetUserByEmail(a.DB(), email)
+		euser, _ := model.GetUserByEmail(a.DB(&c), email)
 		if euser != nil {
 			response = ErrValidation("Email address already exists")
 		} else {
@@ -71,8 +71,8 @@ func UsersValidate(a *context.App, c web.C, r *http.Request) *Response {
 }
 
 func UsersPost(a *context.App, c web.C, r *http.Request) *Response {
-	email := strings.TrimSpace(r.FormValue("uemail"))
-	euser, _ := model.GetUserByEmail(a.DB(), email)
+	email, db := strings.TrimSpace(r.FormValue("uemail")), a.DB(&c)
+	euser, _ := model.GetUserByEmail(db, email)
 	if euser != nil {
 		m := fmt.Sprintf("User already exists with given email id: '%v'", email)
 		log.Error(m)
@@ -90,13 +90,13 @@ func UsersPost(a *context.App, c web.C, r *http.Request) *Response {
 		CreatedBy:   GetUser(c).ID.Hex(),
 		CreatedTime: time.Now()}
 
-	err := model.CreateUser(a.DB(), user)
+	err := model.CreateUser(db, user)
 	if err != nil {
 		log.Errorf("Unable to create user: %q", err)
 		return ErrInternalServer("Unable to create user, due to server issue")
 	}
 
-	userCount := model.GetActiveUserCount(a.DB())
+	userCount := model.GetActiveUserCount(db)
 	msg := "Successfully added user: " + email + ", notification has been sent with user password."
 
 	data := Data{

@@ -30,6 +30,20 @@ func AppInfo(a *context.App) func(*web.C, http.Handler) http.Handler {
 	}
 }
 
+func Database(a *context.App) func(*web.C, http.Handler) http.Handler {
+	return func(c *web.C, h http.Handler) http.Handler {
+		fn := func(w http.ResponseWriter, r *http.Request) {
+			dbs := a.DBSession.Clone()
+			defer dbs.Close()
+			c.Env["DB"] = dbs.DB(a.Config.DB.DBName)
+
+			h.ServeHTTP(w, r)
+		}
+
+		return http.HandlerFunc(fn)
+	}
+}
+
 func Session(a *context.App) func(*web.C, http.Handler) http.Handler {
 	return func(c *web.C, h http.Handler) http.Handler {
 		fn := func(w http.ResponseWriter, r *http.Request) {
@@ -67,9 +81,10 @@ func Auth(a *context.App) func(*web.C, http.Handler) http.Handler {
 
 				if userId, exists := session.Values["User"]; exists {
 					bsonId := userId.(bson.ObjectId)
+					db := a.DB(c)
 					log.Debugf("User info exists in the session: %v", bsonId.Hex())
 
-					user, err := model.GetUserById(a.DB(), bsonId)
+					user, err := model.GetUserById(db, bsonId)
 					if err != nil {
 						log.Warnf("Authentication error: %v", err)
 						delete(c.Env, "User")
@@ -80,7 +95,7 @@ func Auth(a *context.App) func(*web.C, http.Handler) http.Handler {
 						c.Env["IsLoggedIn"] = true
 
 						if user.IsAdmin() {
-							c.Env["UserCount"] = model.GetActiveUserCount(a.DB())
+							c.Env["UserCount"] = model.GetActiveUserCount(db)
 						}
 					}
 				}
@@ -142,7 +157,8 @@ func ApiAuth(a *context.App) func(*web.C, http.Handler) http.Handler {
 
 				// Validating Bearer
 				bearer := auth[7:]
-				u, err := model.GetUserByBearer(a.DB(), &bearer)
+				db := a.DB(c)
+				u, err := model.GetUserByBearer(db, &bearer)
 				if err != nil {
 					log.Errorf("User is not exists for bearer '%v', error: %v", bearer, err)
 					authRequired(w)
@@ -160,7 +176,7 @@ func ApiAuth(a *context.App) func(*web.C, http.Handler) http.Handler {
 					} else {
 						log.Debugf("Last api access update completed for '%v'", u.ID.Hex())
 					}
-				}(a.DB(), u)
+				}(db, u)
 			}
 
 			h.ServeHTTP(w, r)

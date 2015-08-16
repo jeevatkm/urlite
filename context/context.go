@@ -17,6 +17,7 @@ import (
 	"github.com/gorilla/sessions"
 	"github.com/jeevatkm/urlite/model"
 	"github.com/jeevatkm/urlite/tpl"
+	"github.com/zenazn/goji/web"
 
 	log "github.com/Sirupsen/logrus"
 	hash "github.com/speps/go-hashids"
@@ -166,25 +167,20 @@ func (a *App) Close() {
 	}
 }
 
-func (a *App) GetDB(n string) *mgo.Database {
-	// dbsession := a.DBSession.Clone()
-	// defer dbsession.Close()
-	// dbsession.DB(n)
-
-	return a.DBSession.DB(n)
+func (a *App) DB(c *web.C) *mgo.Database {
+	return c.Env["DB"].(*mgo.Database)
 }
 
-func (a *App) DB() *mgo.Database {
-	return a.GetDB(a.Config.DB.DBName)
+func (a *App) db() *mgo.Database {
+	return a.DBSession.DB(a.Config.DB.DBName)
 }
 
 func (a *App) Parse(name string, data interface{}) (page string, err error) {
 	if a.IsDevMode() {
-		a.loadTemplates()
+	 	a.loadTemplates()
 	}
 
 	var doc bytes.Buffer
-
 	err = a.Template.ExecuteTemplate(&doc, name, data)
 	if err != nil {
 		return
@@ -265,13 +261,6 @@ func (a *App) CheckDomainCollName(name string) bool {
 	return false
 }
 
-// func (a *App) AllLinkCount() (al int64) {
-// 	for _, v := range a.Domains {
-// 		al += v.LinkCount + v.CustomLinkCount
-// 	}
-// 	return
-// }
-
 /*
  * Private
  */
@@ -294,7 +283,7 @@ func (a *App) loadTemplates() {
 }
 
 func (a *App) loadDomains() {
-	domains, err := model.GetAllDomain(a.DB())
+	domains, err := model.GetAllDomain(a.db())
 	if err != nil {
 		log.Errorf("Error while loading domain details: %q", err)
 		return
@@ -331,7 +320,7 @@ func (a *App) syncDomainCountToDB() {
 	for k, v := range a.LinkState {
 		if v {
 			log.Infof("Syncing domain: %v", k)
-			err := model.UpdateDomainLinkCount(a.DB(), a.Domains[k])
+			err := model.UpdateDomainLinkCount(a.db(), a.Domains[k])
 			if err != nil {
 				log.Errorf("Error occurred while syncing domain count for %v and error is %q", k, err)
 			}

@@ -15,7 +15,7 @@ import (
 )
 
 func Domains(a *context.App, c web.C, r *http.Request) *Response {
-	domains, _ := model.GetAllDomain(a.DB())
+	domains, _ := model.GetAllDomain(a.DB(&c))
 	AddData(c, Data{
 		"IsDomains": true,
 		"Domains":   domains,
@@ -94,14 +94,15 @@ func DomainsPost(a *context.App, c web.C, r *http.Request) *Response {
 		CollName:      dColl,
 		StatsCollName: dStatsColl,
 		CreatedBy:     GetUser(c).ID.Hex()}
+	db := a.DB(&c)
 
-	err := model.CreateDomain(a.DB(), domain)
+	err := model.CreateDomain(db, domain)
 	if err != nil {
 		log.Errorf("Unable to create domain: %q", err)
 		return ErrInternalServer("Unable to add domain due to server issue")
 	}
 
-	d, _ := model.GetDomain(a.DB(), &dName)
+	d, _ := model.GetDomain(db, &dName)
 	a.AddDomain(d)
 	msg := "Successfully added domain: " + dName
 	data := Data{

@@ -38,7 +38,8 @@ func Login(a *context.App, c web.C, r *http.Request) *Response {
 
 func LoginPost(a *context.App, c web.C, r *http.Request) *Response {
 	email, password := r.FormValue("email"), r.FormValue("password")
-	user, err := model.AuthenticateUser(a.DB(), email, password)
+	db := a.DB(&c)
+	user, err := model.AuthenticateUser(db, email, password)
 
 	session := GetSession(c)
 	if err != nil {
@@ -58,7 +59,7 @@ func LoginPost(a *context.App, c web.C, r *http.Request) *Response {
 		} else {
 			log.Debugf("Last login update completed for '%v'", u.ID.Hex())
 		}
-	}(a.DB(), user)
+	}(db, user)
 
 	rtPath := "/"
 

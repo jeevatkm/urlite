@@ -27,8 +27,8 @@ func init() {
 
 type minifyWriter struct {
 	http.ResponseWriter
-	Code        int
 	Body        *bytes.Buffer
+	code        int
 	wroteHeader bool
 }
 
@@ -38,7 +38,7 @@ func (m *minifyWriter) Header() http.Header {
 
 func (m *minifyWriter) WriteHeader(code int) {
 	if !m.wroteHeader {
-		m.Code = code
+		m.code = code
 		m.wroteHeader = true
 		m.ResponseWriter.WriteHeader(code)
 	}
@@ -58,7 +58,7 @@ func MinifyHandler(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		mw := &minifyWriter{
 			ResponseWriter: w,
-			Body:           new(bytes.Buffer),
+			Body:           &bytes.Buffer{},
 		}
 
 		h.ServeHTTP(mw, r)

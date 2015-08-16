@@ -63,11 +63,12 @@ func handleChangePassword(a *context.App, c web.C, r *http.Request) *Response {
 		return JSON(body)
 	}
 
-	user, _ := model.GetUserByEmail(a.DB(), u.Email)
+	db := a.DB(&c)
+	user, _ := model.GetUserByEmail(db, u.Email)
 	user.Password = util.HashPassword(np)
 	user.UpdatedTime = time.Now()
 	user.UpdatedBy = user.ID.Hex()
-	err := model.UpdateUser(a.DB(), user)
+	err := model.UpdateUser(db, user)
 	if err != nil {
 		log.Errorf("Error occurred while update: %v", err)
 		body = `{

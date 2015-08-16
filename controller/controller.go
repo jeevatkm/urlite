@@ -64,7 +64,7 @@ func (h Handle) ServeHTTPC(c web.C, w http.ResponseWriter, r *http.Request) {
 	body, code, contentType := res.Body, res.Code, res.ContentType
 
 	if session, exists := c.Env["Session"]; exists {
-		log.Debug("Saving sessions...")
+		log.Debug("Saving sessions")
 		err := session.(*sessions.Session).Save(r, w)
 		if err != nil {
 			log.Errorf("Can't save session: %v", err)
@@ -94,7 +94,7 @@ func (h Handle) ServeHTTPC(c web.C, w http.ResponseWriter, r *http.Request) {
 		default:
 			log.Error("Unable to render output, will do something")
 			w.WriteHeader(http.StatusInternalServerError)
-			io.WriteString(w, "Oops, something wrong!")
+			io.WriteString(w, GENERIC_ERROR_MSG)
 		}
 	}
 }
@@ -155,7 +155,7 @@ func DecodeJSON(req *http.Request, v interface{}) error {
 func MarshalJSON(v interface{}) (string, error) {
 	j, err := json.Marshal(v)
 	if err != nil {
-		return "", nil
+		return "{}", nil
 	}
 
 	return string(j), err
