@@ -11,6 +11,9 @@ organization = "Urlite"
 http_ip = "127.0.0.1"
 http_port = "3000"
 
+[security]
+public_path = ["/static", "/favicon.ico", "/robots.txt"]
+
 [cookie]
 mac_secret = "ZPrTL3k6NIEzOjCIX4nWHAwVUgLO-E-W55dFyHRj5O0=" # you can use 'tools/generate_password' to get one
 secure     = false
@@ -21,7 +24,3 @@ hosts	 = "localhost:27017"	# List of Comma seperated host:port values
 db_name	 = "urlite"
 sync_link_num_interval = 4      # In minutes
 
-[csrf]
-key    = "csrf_token"
-cookie = "XSRF-TOKEN"
-header = "X-XSRF-TOKEN"

@@ -43,6 +43,7 @@ type App struct {
 	Domains   map[string]*model.Domain
 	HashGen   map[string]*hash.HashID
 	LinkState map[string]bool
+	NoSessionRoute []string
 }
 
 type Configuration struct {
@@ -53,7 +54,7 @@ type Configuration struct {
 	Owner       ownerInfo
 	DB          database `toml:"database"`
 	Cookie      cookie
-	Csrf        csrf
+	Security    security
 }
 
 type ownerInfo struct {
@@ -66,6 +67,10 @@ type http struct {
 	Port string `toml:"http_port"`
 }
 
+type security struct {
+	PublicPath []string `toml:"public_path"`
+}
+
 type database struct {
 	Type             string
 	Hosts            string
@@ -76,12 +81,6 @@ type database struct {
 type cookie struct {
 	MacSecret string `toml:"mac_secret"`
 	Secure    bool
-}
-
-type csrf struct {
-	Key    string
-	Cookie string
-	Header string
 }
 
 func init() {
@@ -109,6 +108,9 @@ func InitContext(configFile *string) (ac *App) {
 		log.SetFormatter(new(log.JSONFormatter))
 		log.SetLevel(log.ErrorLevel)
 	}
+
+	// No Session Routes
+	ac.NoSessionRoute = append(ac.Config.Security.PublicPath, "/api")
 
 	// Session store
 	chash := sha256.New()
@@ -177,7 +179,7 @@ func (a *App) db() *mgo.Database {
 
 func (a *App) Parse(name string, data interface{}) (page string, err error) {
 	if a.IsDevMode() {
-	 	a.loadTemplates()
+		a.loadTemplates()
 	}
 
 	var doc bytes.Buffer
