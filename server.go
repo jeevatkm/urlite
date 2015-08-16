@@ -11,10 +11,10 @@ import (
 	"github.com/jeevatkm/urlite/middleware"
 	"github.com/zenazn/goji"
 	"github.com/zenazn/goji/graceful"
-	"github.com/jeevatkm/handlers"
 
 	log "github.com/Sirupsen/logrus"
 	groc "github.com/gorilla/context"
+	jm "github.com/jeevatkm/middleware"
 	ctr "github.com/jeevatkm/urlite/controller"
 	gw "github.com/zenazn/goji/web"
 	gm "github.com/zenazn/goji/web/middleware"
@@ -36,7 +36,7 @@ func main() {
 
 	// Middleware
 	goji.Use(groc.ClearHandler) // Gorilla session clear
-	goji.Use(handlers.Minify)
+	goji.Use(jm.Minify)
 	goji.Use(middleware.AppInfo(context))
 	goji.Use(middleware.Database(context))
 	goji.Use(middleware.Session(context))
