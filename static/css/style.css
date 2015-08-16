@@ -236,12 +236,19 @@ thead {
   padding: 5px;
 }
 
+.bootstrap-table .table>thead>tr, .bootstrap-table .table>tbody>tr {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
 .dl-horizontal dt {
   margin-bottom: 10px;
 }
 
-/*.footer {
-    border-top: 1px solid #ccc;
-    padding-top: 10px;
-}*/
-/* #32c75f */
+#userDetailModal .modal-lg {
+    width: 700px;
+}

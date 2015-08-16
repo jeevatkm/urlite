@@ -27,17 +27,9 @@
                             <dt>Permissions</dt>
                             <dd>{{toCommaStr .Permissions}}</dd>
                             <dt>Last Logged-In</dt>
-                            {{if .LastLoggedIn.IsZero}}
-                                <dd>Not yet</dd>
-                            {{else}}
-                                <dd>{{friendlyDateTime .LastLoggedIn}}</dd>
-                            {{end}}
+                            <dd id="lastLoggedIn"></dd>
                             <dt>Last API Accessed</dt>
-                            {{if .LastApiAccessed.IsZero}}
-                                <dd>Not yet</dd>
-                            {{else}}
-                                <dd>{{friendlyDateTime .LastApiAccessed}}</dd>
-                            {{end}}
+                            <dd id="lastApiAccess"></dd>
                         </dl>
                     {{end}}
 		        	</div>
@@ -126,6 +118,9 @@
                 return false;
             }
         });
+        
+        $('#lastLoggedIn').text(dateFormatter('{{.User.LastLoggedIn}}'));
+        $('#lastApiAccess').text(dateFormatter('{{.User.LastApiAccessed}}'));
     }
 </script>
 {{end}}

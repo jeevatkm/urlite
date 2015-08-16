@@ -108,6 +108,37 @@
     </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
+<div class="modal fade" id="userDetailModal" tabindex="-1" role="dialog" aria-labelledby="userDetailModalLabel">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="userDetailModalLabel">User Details</h4>
+      </div>
+      <div class="modal-body">
+        <div class="container-fluid">
+            <!-- <div id="modal_alert"></div>
+            <form id="userForm" method="post" class="form-horizontal"> -->
+                <dl class="dl-horizontal">
+                    <dt>Email Address</dt>
+                    <dd id="email"></dd>
+                    <dt>Domains</dt>
+                    <dd id="domains"></dd>
+                    <dt>Bearer Token</dt>
+                    <dd id="bearer"></dd>
+                    <dt>Permissions</dt>
+                    <dd id="permissions"></dd>
+                    <dt>Last Logged-In</dt>
+                    <dd id="lastLoggedIn"></dd>
+                    <dt>Last API Accessed</dt>
+                    <dd id="lastApiAccess"></dd>
+                </dl>
+            <!-- </form> -->
+        </div>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
 <script type="text/javascript">
     function userDataRequest(req) {
         $.ajax({
@@ -128,6 +159,7 @@
     }
 
     function wpr() {
+        $usersTable = $('#usersTable');
         $("#addUser").click(function(){
             $("#userAddModal")
             .on('shown.bs.modal', function (e) { //var button = $(e.relatedTarget)  //var modal = $(this)
@@ -172,7 +204,7 @@
                     $("#userAddModal").modal('hide');
                     $('#userCount').text(data.user_count);
                     $('#alert_container').bsAlert(data.message).bsHideAlert();
-                    $('#usersTable').bootstrapTable('refresh', {silent: true});
+                    $usersTable.bootstrapTable('refresh', {silent: true});
                 })
                 .fail(function(xhr, status, errorThrown) {
                     res = xhr.responseJSON;
@@ -182,6 +214,17 @@
                 return false;
             }
         });
+
+        $usersTable.on('dbl-click-row.bs.table', function(e, row, ele) {
+            $usrDtMdl = $('#userDetailModal');
+            $usrDtMdl.find('#email').text(row.email);
+            $usrDtMdl.find('#domains').text(domainFormatter(row.domains));
+            $usrDtMdl.find('#bearer').text(row.bearer);
+            $usrDtMdl.find('#permissions').text(domainFormatter(row.permissions));
+            $usrDtMdl.find('#lastLoggedIn').text(dateFormatter(row.last_logged_in));
+            $usrDtMdl.find('#lastApiAccess').text(dateFormatter(row.last_api_accessed));
+            $usrDtMdl.modal('show');
+        });        
     }
 </script>
 {{end}}
