@@ -29,6 +29,18 @@
 			"Rev": "aab5b5b2ddd2ae9e35b8aca91e163b734e2d6be1"
 		},
 		{
+			"ImportPath": "github.com/tdewolff/buffer",
+			"Rev": "8ff0a82a07bd36d4cf1e8728015553e67d720100"
+		},
+		{
+			"ImportPath": "github.com/tdewolff/minify",
+			"Rev": "6ba1048de80217e603f7044caa5c125c5012b560"
+		},
+		{
+			"ImportPath": "github.com/tdewolff/parse",
+			"Rev": "be9d09681ba70bae4bb3bea604506a28359ef508"
+		},
+		{
 			"ImportPath": "github.com/zenazn/goji",
 			"Comment": "v0.9.0-27-g4faf9df",
 			"Rev": "4faf9dfc1c88f0858e889b2d6903b4c4dbca11af"
