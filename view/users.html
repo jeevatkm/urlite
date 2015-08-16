@@ -22,13 +22,15 @@
                                data-side-pagination="server"
                                data-page-size="10"
                                data-sort-name="last_api_accessed"
-                               data-sort-order="desc">
+                               data-sort-order="desc"
+                               data-id-field="email">
                             <thead>
                             <tr>
                                 <th data-field="email" data-width="280px">Email</th>
                                 <th data-field="domains" data-formatter="domainFormatter" data-width="280px">Domains</th>
-                                <th data-field="last_logged_in" data-formatter="dateFormatter" data-width="170px">Last LoggedIn</th>
-                                <th data-field="last_api_accessed" data-formatter="dateFormatter" data-width="170px">Last API Access</th>
+                                <th data-field="last_logged_in" data-formatter="dateFormatter" data-width="150px">Last LoggedIn</th>
+                                <th data-field="last_api_accessed" data-formatter="dateFormatter" data-width="150px">Last API Access</th>
+                                <th data-formatter="actionFormatter" data-events="userActionEvents" data-width="75px" data-align="center">Actions</th>
                             </tr>
                             </thead>
                         </table>
@@ -38,9 +40,6 @@
         </div> <!--/.panel-body -->
     </div>
 </div>
-<script type="text/javascript">
-
-</script>
 <div class="modal fade" id="userAddModal" tabindex="-1" role="dialog" aria-labelledby="userAddModalLabel">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
@@ -158,8 +157,26 @@
         });
     }
 
+    function actionFormatter(v) {
+        return [
+            '<div class="form-inline btn-group" role="group">',
+            '<button type="button" class="btn btn-default btn-xs btn-urlite-r disable-user" aria-label="Disable User" title="Disable User">',
+            '<i class="glyphicon glyphicon-ban-circle" aria-hidden="true"></i>',
+            '</button>',
+            '<button type="button" class="btn btn-default btn-xs btn-urlite-g reset-keys" aria-label="Reset Password and API Bearer" title="Reset Password and API Bearer">',
+            '<i class="glyphicon glyphicon-lock" aria-hidden="true"></i>',
+            '</button>',
+            '</div>'
+        ].join('');
+    }
+
     function wpr() {
         $usersTable = $('#usersTable');
+
+        // $.fn.bootstrapTable.defaults['formatShowingRows'] = function(f, t, tr) {
+        //     return 'Showing '+ f + ' to ' + t + ' of ' + tr + ' users';
+        // };
+
         $("#addUser").click(function(){
             $("#userAddModal")
             .on('shown.bs.modal', function (e) { //var button = $(e.relatedTarget)  //var modal = $(this)
@@ -224,7 +241,24 @@
             $usrDtMdl.find('#lastLoggedIn').text(dateFormatter(row.last_logged_in));
             $usrDtMdl.find('#lastApiAccess').text(dateFormatter(row.last_api_accessed));
             $usrDtMdl.modal('show');
-        });        
+        });
+
+        window.userActionEvents = {
+            'click .disable-user': function (e, value, row, index) {
+                //console.log(row);
+                $usersTable.bootstrapTable('remove', {
+                    field: 'email',
+                    values: [row.email]
+                });
+                //console.log($('.pagination-info').text());
+                //var data = $usersTable.bootstrapTable('getData')
+                //console.log(data);
+            },
+            'click .reset-keys': function (e, value, row, index) {                
+                console.log(row);
+                alert('You click like action, row: ' + JSON.stringify(row));
+            }
+        };      
     }
 </script>
 {{end}}
