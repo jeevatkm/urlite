@@ -317,21 +317,19 @@ func (a *App) stopSyncTasks() {
 }
 
 func (a *App) syncDomainCountToDB() {
-	log.Infof("Starting Domain link count sync at %v", time.Now())
+	//log.Infof("Starting Domain link count sync at %v", time.Now())
 
 	for k, v := range a.LinkState {
 		if v {
 			log.Infof("Syncing domain: %v", k)
 			err := model.UpdateDomainLinkCount(a.db(), a.Domains[k])
 			if err != nil {
-				log.Errorf("Error occurred while syncing domain count for %v and error is %q", k, err)
+				log.Errorf("Error occurred while syncing domain urlite count for %v and error is %q", k, err)
 			}
 
 			a.LinkState[k] = false
-		} else {
-			log.Infof("Skipping sync domain: %v", k)
 		}
 	}
 
-	log.Infof("Completed Domain link count sync at %v", time.Now())
+	//log.Infof("Completed Domain link count sync at %v", time.Now())
 }

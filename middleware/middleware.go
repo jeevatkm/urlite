@@ -47,10 +47,10 @@ func Database(a *context.App) func(*web.C, http.Handler) http.Handler {
 func Session(a *context.App) func(*web.C, http.Handler) http.Handler {
 	return func(c *web.C, h http.Handler) http.Handler {
 		fn := func(w http.ResponseWriter, r *http.Request) {
-			// No session for Path /api/* since it's token based
+			// No session for Path /api/* since it's goes with bearer token
 			if !isRoute(r, a.NoSessionRoute...) {
 				session, err := a.Store.Get(r, "urlite-session")
-				if err == nil { // No error we got the session
+				if err == nil { // if err is nil, it means we got the session
 					c.Env["IsNewSession"] = session.IsNew
 					c.Env["Session"] = session
 
@@ -60,8 +60,6 @@ func Session(a *context.App) func(*web.C, http.Handler) http.Handler {
 				} else {
 					log.Errorf("Could not be decoded, it's protected resources", err)
 				}
-			} else {
-				log.Debugf("No session for: %v", r.URL.Path)
 			}
 
 			h.ServeHTTP(w, r)

@@ -74,6 +74,7 @@ func HandleUrlite(a *context.App, c web.C, r *http.Request) *Response {
 	ul := &model.Urlite{ID: urliteId,
 		Urlite:      urlite,
 		LongUrl:     strings.TrimSpace(liteReq.LongUrl),
+		Domain:      domain.Name,
 		CreatedBy:   u.ID.Hex(),
 		CreatedTime: time.Now()}
 	err = model.CreateUrlite(db, domain.CollName, ul)

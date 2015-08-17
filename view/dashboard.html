@@ -6,9 +6,19 @@
         	<div class="row">
         		{{template "sidebar" .}}
 		        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-0 main">
-		        	<h2 class="page-header">Dashboard</h2>
-		        	<div>
-		        		I'm here
+		        	<h2 class="page-header">Dashboard
+                        <div class="form-inline pull-right" style="margin-top:-5px">
+                            <div class="form-group form-group-sm">
+                                <select class="form-control" id="selectedDomain" name="selectedDomain" style="width:150px;">
+                                    {{range .Domains}}
+                                        <option value="{{.Name}}" {{if .IsDefault}}selected{{end}}>{{.Name}}</option>
+                                    {{end}}
+                                </select>
+                            </div>
+                        </div>
+                    </h2>
+		        	<div class="dashboard-content">
+		        		<table id="urliteTable"></table>
 		        	</div>
 		        </div> <!--/.main -->
         	</div>
@@ -17,7 +27,25 @@
 </div>
 <script type="text/javascript">
     function wpr() {
-        
+        urliteTable = $('#urliteTable');
+
+        $.fn.bootstrapTable.defaults.formatShowingRows = function(pf, pt, trows) {
+            return 'Showing '+ pf + ' to ' + pt + ' of ' + trows + ' urlites';
+        }
+
+
+        urliteTable.bootstrapTable({
+            pagination: true,
+            sidePagination: 'server',
+            pageSize: 10,
+            detailFormatter: function(idx, row) {
+                console.log(idx);
+                console.log(row);
+            },
+            ajax: function(req) {
+
+            }
+        });        
     }
 </script>
 {{end}}

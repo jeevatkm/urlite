@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/gorilla/sessions"
 	"github.com/jeevatkm/urlite/context"
@@ -127,9 +128,21 @@ func ParsePagination(r *http.Request) *model.Pagination {
 	log.Debugf("Query params: %v", r.URL.RawQuery)
 
 	limit, _ := strconv.Atoi(r.FormValue("limit"))
+	if limit == 0 {
+		limit = 10
+	}
+
 	offset, _ := strconv.Atoi(r.FormValue("offset"))
-	sort := r.FormValue("sort")
-	order := r.FormValue("order")
+
+	sort := strings.TrimSpace(r.FormValue("sort"))
+	if len(sort) == 0 {
+		sort = "_id"
+	}
+
+	order := strings.TrimSpace(r.FormValue("order"))
+	if len(order) == 0 {
+		order = "asc"
+	}
 	if order == "desc" {
 		sort = "-" + sort
 	}

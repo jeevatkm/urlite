@@ -50,6 +50,7 @@ func main() {
 	goji.Get("/profile", ctr.Handle{context, web.Profile})
 	goji.Post("/profile", ctr.Handle{context, web.ProfilePost})
 	goji.Get("/dashboard", ctr.Handle{context, web.Dashboard})
+	goji.Get("/dashboard/data", ctr.Handle{context, web.DashboardData})
 
 	// Login routes
 	goji.Get("/login", ctr.Handle{context, web.Login})
@@ -67,6 +68,7 @@ func main() {
 	ar.Use(middleware.AdminAuth(context))
 	ar.Get("/", http.RedirectHandler("/admin/dashboard", 301))
 	ar.Get("/dashboard", ctr.Handle{context, web.Dashboard})
+	ar.Get("/dashboard/data", ctr.Handle{context, web.DashboardData})
 	ar.Get("/domains", ctr.Handle{context, web.Domains})
 	ar.Get("/domains/validate", ctr.Handle{context, web.DomainsValidate})
 	ar.Post("/domains", ctr.Handle{context, web.DomainsPost})
