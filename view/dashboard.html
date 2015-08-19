@@ -26,65 +26,44 @@
     </div>
 </div>
 <style type="text/css">
-    .urlites-content .bootstrap-table {
-        width: 450px !important;
-        margin-top: -10px;
-    }
-    .table-urlites {}
-    .table-urlites .urlite {
-        padding-top: 10px;
-        padding-bottom: 10px;
-        padding-left: 5px;
-        padding-right: 5px;
-        border-bottom: .1em solid #BED3F3;
-    }
-    .table-urlites .urlite-domain {
-        margin-left: 5px;
-    }
-    .table-urlites .urlite-cd {
-        margin-right: 5px;
-    }
-    .table-urlites .urlite-title {
-        overflow: hidden; 
-        text-overflow: ellipsis;
-    }
-    .table-urlites .urlite-link {
-        padding-right: 5px;
-    }
-    .table-urlites .urlite-clicks {
-
-    }
+    
 </style>
 <script type="text/javascript">
-    function createUrlite(r) {
+    function createUrlite(r, i) {
         console.log(r);
+        console.log(i);
         dr = [
             '<div class="urlite"><div><div class="urlite-link">',
             '<span class="small urlite-cd">' + prettyDate(r.created_time) + '</span>-',
-            '<span class="urlite-domain">' + r.domain + '</span>/<span class="urlite-hash">' + r.id + '</span>',
-            '<div class="pull-right"><span class="urlite-clicks">100</span>&nbsp;&nbsp;<i class="glyphicon glyphicon-stats"></i></div></div>',
+            '<span class="urlite-domain">' + r.domain + '/</span><span class="urlite-hash">' + r.id + '</span>',
+            '<span id="rowCopy_' + i + '" data-clipboard-text="' + r.urlite + '" class="badge urlite-cp-badge">Copy</span>',
+            '<div class="pull-right" style="margin-top: 18px !important;"><span class="urlite-clicks">100</span>&nbsp;&nbsp;<i class="glyphicon glyphicon-stats"></i></div></div>',
             '<div class="title-wrapper"><h5 class="urlite-title">' + r.long_url + '</h5></div>',
             '</div>'
         ];
-        
+
         return dr.join('');
     }
 
     function wpr() {
-        urliteTable = $('#urliteTable');
+        var urliteTable = $('#urliteTable');
+
+        ZeroClipboard.config({
+            forceHandCursor: true
+        });
 
         urliteTable.bootstrapTable({
             pagination: true,
             sidePagination: 'server',
             pageSize: 10,
             pageList: [],
-            height: 500,
+            height: 470,
             showHeader: false,
             idField: 'id',
             classes: 'table-no-bordered table-hover table-urlites',
             columns: [{
                 formatter: function(v, r, i) {
-                    return createUrlite(r);
+                    return createUrlite(r, i);
                 }
             }],
             ajax: function(req) {
@@ -102,6 +81,7 @@
                         rows: data.result
                     });
                     req.complete();
+                    var clip = new ZeroClipboard($('[id^=rowCopy_]'));
                 })
                 .fail(function(xhr, status, errorThrown) {
                     res = xhr.responseJSON;
@@ -111,7 +91,13 @@
             formatShowingRows: function(pf, pt, trows) {
                 return 'Showing '+ pf + ' to ' + pt + ' of ' + trows + ' urlites';
             }
-        });        
+        });
+
+        $('#selectedDomain').on('change', function () {
+            urliteTable.bootstrapTable('refresh');
+        });
+
+        $('.fixed-table-pagination').addClass('hidden');
     }
 </script>
 {{end}}
