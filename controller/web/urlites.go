@@ -73,7 +73,7 @@ func UrlitesData(a *context.App, c web.C, r *http.Request) *Response {
 		q = bson.M{"cb": u.ID.Hex()}
 	}
 
-	pageResult, _ := model.GetUrliteByPage(db, d.CollName, q, page)
+	pageResult, _ := model.GetUrliteByPage(db, d.TrackName, q, page)
 	body, err := MarshalJSON(pageResult)
 	if err != nil {
 		log.Errorf("JSON Marshal error: %q", err)

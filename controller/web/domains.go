@@ -50,21 +50,21 @@ func DomainsValidate(a *context.App, c web.C, r *http.Request) *Response {
 	}
 
 	// Collection name validation
-	dColl := strings.TrimSpace(r.FormValue("dColl"))
-	log.Debugf("dColl: %v", dColl)
-	if len(dColl) > 0 {
-		res := a.CheckDomainCollName(dColl)
+	dTrack := strings.TrimSpace(r.FormValue("dTrack"))
+	log.Debugf("dTrack: %v", dTrack)
+	if len(dTrack) > 0 {
+		res := a.CheckDomainTrackName(dTrack)
 		if res {
-			log.Debugf("Collection name [%v] exists, will be suggestion one", dColl)
+			log.Debugf("Collection name [%v] exists, will be suggestion one", dTrack)
 			// Hoping not to reach more than 20 in numbers, might need a revisit
 			for i := 1; i <= 20; i++ {
-				nDColl := fmt.Sprintf("%v%d", dColl, i)
-				res = a.CheckDomainCollName(nDColl)
+				nDTrack := fmt.Sprintf("%v%d", dTrack, i)
+				res = a.CheckDomainTrackName(nDTrack)
 				if !res {
 					data := Data{
 						"id":             "validation",
 						"message":        "Collection already exists",
-						"suggested_name": nDColl,
+						"suggested_name": nDTrack,
 					}
 
 					response = PrepareJSONc(data, http.StatusBadRequest, GENERIC_ERROR_MSG)
@@ -87,13 +87,12 @@ func DomainsPost(a *context.App, c web.C, r *http.Request) *Response {
 		return ErrBadRequest(m)
 	}
 
-	dScheme, dColl, dStatsColl := r.FormValue("dScheme"), r.FormValue("dColl"), r.FormValue("dStatsColl")
+	dScheme, dTrack := r.FormValue("dScheme"), r.FormValue("dTrack")
 	domain := &model.Domain{Name: dName,
-		Scheme:        dScheme,
-		Salt:          random.DomainSalt(),
-		CollName:      dColl,
-		StatsCollName: dStatsColl,
-		CreatedBy:     GetUser(c).ID.Hex()}
+		Scheme:    dScheme,
+		Salt:      random.DomainSalt(),
+		TrackName: dTrack,
+		CreatedBy: GetUser(c).ID.Hex()}
 	db := a.DB(&c)
 
 	err := model.CreateDomain(db, domain)

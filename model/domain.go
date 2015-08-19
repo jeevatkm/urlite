@@ -18,8 +18,7 @@ type Domain struct {
 	LinkCount       int64         `bson:"link_cnt" json:"link_cnt"`
 	CustomLinkCount int64         `bson:"custom_link_cnt" json:"custom_link_cnt"`
 	IsDefault       bool          `bson:"is_default" json:"is_default"`
-	CollName        string        `bson:"coll_name" json:"-"`
-	StatsCollName   string        `bson:"stats_coll_name" json:"-"`
+	TrackName       string        `bson:"track_name" json:"-"`
 	CreatedBy       string        `bson:"cb" json:"-"`
 	CreatedTime     time.Time     `bson:"ct" json:"-"`
 	UpdatedBy       string        `bson:"ub" json:"-"`

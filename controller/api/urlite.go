@@ -51,7 +51,7 @@ func HandleUrlite(a *context.App, c web.C, r *http.Request) *Response {
 	if len(urliteId) > 0 { // Custom name mode
 		log.Debug("Custom name mode")
 
-		exists, _ := model.GetUrlite(db, domain.CollName, &urliteId)
+		exists, _ := model.GetUrlite(db, domain.TrackName, &urliteId)
 		if exists != nil {
 			log.Errorf("Given custom name is unavailable: %v", err)
 			return ErrConflict("Given custom name [" + urliteId + "] is unavailable")
@@ -77,7 +77,7 @@ func HandleUrlite(a *context.App, c web.C, r *http.Request) *Response {
 		Domain:      domain.Name,
 		CreatedBy:   u.ID.Hex(),
 		CreatedTime: time.Now()}
-	err = model.CreateUrlite(db, domain.CollName, ul)
+	err = model.CreateUrlite(db, domain.TrackName, ul)
 	if err != nil {
 		log.Errorf("Unable to insert new urlite into db: %q", err)
 		return ErrInternalServer("Unable to generate urlite")

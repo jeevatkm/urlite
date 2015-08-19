@@ -16,16 +16,19 @@ type Urlite struct {
 	CreatedTime time.Time `bson:"ct" json:"created_time"`
 }
 
-func CreateUrlite(db *mgo.Database, coll string, ul *Urlite) error {
+func CreateUrlite(db *mgo.Database, tn string, ul *Urlite) error {
+	coll := "urlite_" + tn
 	return db.C(coll).Insert(ul)
 }
 
-func GetUrlite(db *mgo.Database, coll string, id *string) (ul *Urlite, err error) {
+func GetUrlite(db *mgo.Database, tn string, id *string) (ul *Urlite, err error) {
+	coll := "urlite_" + tn
 	err = db.C(coll).Find(bson.M{"_id": id}).One(&ul)
 	return
 }
 
-func GetUrliteByPage(db *mgo.Database, coll string, query bson.M, page *Pagination) (*PaginatedResult, error) {
+func GetUrliteByPage(db *mgo.Database, tn string, query bson.M, page *Pagination) (*PaginatedResult, error) {
+	coll := "urlite_" + tn
 	urlites := []Urlite{}
 	total, err := db.C(coll).Find(query).Count()
 	err = db.C(coll).Find(query).Sort(page.Sort).Skip(page.Offset).Limit(page.Limit).All(&urlites)

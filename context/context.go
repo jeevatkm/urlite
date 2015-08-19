@@ -36,13 +36,13 @@ var (
 )
 
 type App struct {
-	Config    *Configuration
-	Template  *template.Template
-	Store     *sessions.CookieStore
-	DBSession *mgo.Session
-	Domains   map[string]*model.Domain
-	HashGen   map[string]*hash.HashID
-	LinkState map[string]bool
+	Config         *Configuration
+	Template       *template.Template
+	Store          *sessions.CookieStore
+	DBSession      *mgo.Session
+	Domains        map[string]*model.Domain
+	HashGen        map[string]*hash.HashID
+	LinkState      map[string]bool
 	NoSessionRoute []string
 }
 
@@ -239,8 +239,7 @@ func (a *App) AddDomain(d *model.Domain) {
 		IsDefault:       d.IsDefault,
 		LinkCount:       d.LinkCount,
 		CustomLinkCount: d.CustomLinkCount,
-		CollName:        d.CollName,
-		StatsCollName:   d.StatsCollName}
+		TrackName:       d.TrackName}
 
 	// Initializing Hash generater for domain
 	hd := hash.NewData()
@@ -252,10 +251,10 @@ func (a *App) AddDomain(d *model.Domain) {
 	a.LinkState[d.Name] = false
 }
 
-func (a *App) CheckDomainCollName(name string) bool {
-	dColl := "urlite_" + name
+func (a *App) CheckDomainTrackName(name string) bool {
+	//dTrack := "urlite_" + name
 	for _, v := range a.Domains {
-		if v.CollName == dColl {
+		if v.TrackName == name {
 			return true
 		}
 	}

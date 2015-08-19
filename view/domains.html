@@ -51,24 +51,17 @@
                         <input type="text" data-minlength="4" class="form-control" id="dName" name="dName" placeholder="Domain Name" data-remote-error="Domain already exists" data-error="Minimum 4 characters!" data-remote="/admin/domains/validate" required>
                         <div class="help-block with-errors"></div>
                     </div>
-                    <!--   -->         
                 </div>
                 <div class="form-group">
-                    <label for="dName" class="col-sm-4 control-label">Domain Scheme</label>
+                    <label for="dScheme" class="col-sm-4 control-label">Domain Scheme</label>
                     <div class="col-sm-7">
                         <input type="text" pattern="^http[s]?$" class="form-control" id="dScheme" name="dScheme" placeholder="Domain Scheme. for eg. http/https" required>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="dName" class="col-sm-4 control-label">Collection Name</label>
+                    <label for="dTrack" class="col-sm-4 control-label">Domain Track Name</label>
                     <div class="col-sm-7">
-                        <input type="text" class="form-control" id="dColl" name="dColl" placeholder="Collection Name">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="dName" class="col-sm-4 control-label">Stats Collection Name</label>
-                    <div class="col-sm-7">
-                        <input type="text" class="form-control" id="dStatsColl" name="dStatsColl" placeholder="Stats Collection Name">
+                        <input type="text" class="form-control" id="dTrack" name="dTrack" placeholder="Domain Track Name">
                     </div>
                 </div>
                 <div class="form-group col-sm-6 pull-right" style="margin-right:-28px;margin-top:10px;">
@@ -89,9 +82,8 @@
         return d;
     }
 
-    function assignCollName(n) {
-        $('#dColl').val('urlite_' + n);
-        $('#dStatsColl').val('urlite_' + n + '_stats');
+    function assignTrackName(n) {
+        $('#dTrack').val(n);
     }
 
     function wpr() {
@@ -114,13 +106,13 @@
 
                 $.ajax({
                     url: '/admin/domains/validate',
-                    data: 'dColl=' + v
+                    data: 'dTrack=' + v
                 })
                 .done(function(data, status, xhr) {
-                    assignCollName(v);
+                    assignTrackName(v);
                 })
                 .fail(function(xhr, status, errorThrown) {
-                    assignCollName(xhr.responseJSON.suggested_name);
+                    assignTrackName(xhr.responseJSON.suggested_name);
                 });
             }
         });
@@ -148,8 +140,7 @@
             }
         });
 
-        $('#dColl').keypress(function(e) {e.preventDefault(); return false;});
-        $('#dStatsColl').keypress(function(e) {e.preventDefault(); return false;});
+        $('#dTrack').keypress(function(e) {e.preventDefault(); return false;});
     }
 </script>
 {{end}}
