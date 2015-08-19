@@ -17,7 +17,7 @@
                             </div>
                         </div>
                     </h2>
-		        	<div class="dashboard-content">
+		        	<div class="urlites-content">
 		        		<table id="urliteTable"></table>
 		        	</div>
 		        </div> <!--/.main -->
@@ -25,25 +25,91 @@
         </div> <!--/.panel-body -->
     </div>
 </div>
+<style type="text/css">
+    .urlites-content .bootstrap-table {
+        width: 450px !important;
+        margin-top: -10px;
+    }
+    .table-urlites {}
+    .table-urlites .urlite {
+        padding-top: 10px;
+        padding-bottom: 10px;
+        padding-left: 5px;
+        padding-right: 5px;
+        border-bottom: .1em solid #BED3F3;
+    }
+    .table-urlites .urlite-domain {
+        margin-left: 5px;
+    }
+    .table-urlites .urlite-cd {
+        margin-right: 5px;
+    }
+    .table-urlites .urlite-title {
+        overflow: hidden; 
+        text-overflow: ellipsis;
+    }
+    .table-urlites .urlite-link {
+        padding-right: 5px;
+    }
+    .table-urlites .urlite-clicks {
+
+    }
+</style>
 <script type="text/javascript">
+    function createUrlite(r) {
+        console.log(r);
+        dr = [
+            '<div class="urlite"><div><div class="urlite-link">',
+            '<span class="small urlite-cd">' + prettyDate(r.created_time) + '</span>-',
+            '<span class="urlite-domain">' + r.domain + '</span>/<span class="urlite-hash">' + r.id + '</span>',
+            '<div class="pull-right"><span class="urlite-clicks">100</span>&nbsp;&nbsp;<i class="glyphicon glyphicon-stats"></i></div></div>',
+            '<div class="title-wrapper"><h5 class="urlite-title">' + r.long_url + '</h5></div>',
+            '</div>'
+        ];
+        
+        return dr.join('');
+    }
+
     function wpr() {
         urliteTable = $('#urliteTable');
-
-        $.fn.bootstrapTable.defaults.formatShowingRows = function(pf, pt, trows) {
-            return 'Showing '+ pf + ' to ' + pt + ' of ' + trows + ' urlites';
-        }
-
 
         urliteTable.bootstrapTable({
             pagination: true,
             sidePagination: 'server',
             pageSize: 10,
-            detailFormatter: function(idx, row) {
-                console.log(idx);
-                console.log(row);
-            },
+            pageList: [],
+            height: 500,
+            showHeader: false,
+            idField: 'id',
+            classes: 'table-no-bordered table-hover table-urlites',
+            columns: [{
+                formatter: function(v, r, i) {
+                    return createUrlite(r);
+                }
+            }],
             ajax: function(req) {
-
+                console.log('ajax');
+                req.data.dName = $('#selectedDomain').val();
+                console.log(req.data);
+                $.ajax({
+                    url: '{{if .IsDashboard}}/admin/dashboard/data{{else}}/dashboard/data{{end}}',
+                    data: req.data
+                })
+                .done(function(data) {
+                    console.log(data);
+                    req.success({
+                        total: data.total,
+                        rows: data.result
+                    });
+                    req.complete();
+                })
+                .fail(function(xhr, status, errorThrown) {
+                    res = xhr.responseJSON;
+                    $('#alert_container').bsAlert(res.message, 'error');
+                });
+            },
+            formatShowingRows: function(pf, pt, trows) {
+                return 'Showing '+ pf + ' to ' + pt + ' of ' + trows + ' urlites';
             }
         });        
     }
