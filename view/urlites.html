@@ -1,4 +1,4 @@
-{{define "dashboard"}}
+{{define "urlites"}}
 <div class="row admin">
     <div id="alert_container"></div>
     <div class="panel panel-default panel-pad">
@@ -6,12 +6,23 @@
         	<div class="row">
         		{{template "sidebar" .}}
 		        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-0 main">
-		        	<h2 class="page-header">Dashboard
+		        	<h2 class="page-header">Your Urlites
                         <div class="form-inline pull-right" style="margin-top:-5px">
                             <div class="form-group form-group-sm">
                                 <select class="form-control" id="selectedDomain" name="selectedDomain" style="width:150px;">
-                                    {{range .Domains}}
-                                        <option value="{{.Name}}" {{if .IsDefault}}selected{{end}}>{{.Name}}</option>
+                                    {{if .IsUrlites}}
+                                        {{range .Domains}}
+                                            <option value="{{.Name}}" {{if .IsDefault}}selected{{end}}>{{.Name}}</option>
+                                        {{end}}
+                                    {{else}}
+                                        {{$userDomains := .User.Domains}}
+                                        {{range $d := .Domains}}
+                                            {{range $ud := $userDomains}}
+                                                {{if eq $ud $d.Name}}
+                                                <option value="{{$d.Name}}" {{if $d.IsDefault}}selected{{end}}>{{$d.Name}}</option>
+                                                {{end}}
+                                            {{end}}
+                                        {{end}}
                                     {{end}}
                                 </select>
                             </div>
@@ -30,15 +41,14 @@
 </style>
 <script type="text/javascript">
     function createUrlite(r, i) {
-        console.log(r);
-        console.log(i);
         dr = [
-            '<div class="urlite"><div><div class="urlite-link">',
+            '<div class="urlite">',
+            '<div class="title-wrapper"><h5 class="urlite-title">' + r.long_url +'</h5></div>',
+            '<div class="urlite-link">',
             '<span class="small urlite-cd">' + prettyDate(r.created_time) + '</span>-',
             '<span class="urlite-domain">' + r.domain + '/</span><span class="urlite-hash">' + r.id + '</span>',
             '<span id="rowCopy_' + i + '" data-clipboard-text="' + r.urlite + '" class="badge urlite-cp-badge">Copy</span>',
-            '<div class="pull-right" style="margin-top: 18px !important;"><span class="urlite-clicks">100</span>&nbsp;&nbsp;<i class="glyphicon glyphicon-stats"></i></div></div>',
-            '<div class="title-wrapper"><h5 class="urlite-title">' + r.long_url + '</h5></div>',
+            '<div class="pull-right"><span class="urlite-clicks">100</span>&nbsp;&nbsp;<i class="glyphicon glyphicon-stats"></i></div>',
             '</div>'
         ];
 
@@ -67,15 +77,12 @@
                 }
             }],
             ajax: function(req) {
-                console.log('ajax');
                 req.data.dName = $('#selectedDomain').val();
-                console.log(req.data);
                 $.ajax({
-                    url: '{{if .IsDashboard}}/admin/dashboard/data{{else}}/dashboard/data{{end}}',
+                    url: '{{if .IsUrlites}}/admin/urlites/data{{else}}/urlites/data{{end}}',
                     data: req.data
                 })
                 .done(function(data) {
-                    console.log(data);
                     req.success({
                         total: data.total,
                         rows: data.result

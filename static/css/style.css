@@ -272,18 +272,27 @@ thead {
     margin-right: 5px;
 }
 .table-urlites .urlite-title {
-    overflow: hidden; 
-    text-overflow: ellipsis;
+    margin-top: 0;
+    margin-bottom: 0;
     line-height: 1.5;
 }
+.table-urlites .title-wrapper {
+    margin-top: 2px;
+    margin-bottom: 10px;        
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 410px;
+}
 .table-urlites .urlite-domain, .table-urlites .urlite-hash {
-    color: #1C92DC;
+    color: #1B8F59;
 }
 .table-urlites .urlite-hash {
     font-weight: bold;
 }
 .table-urlites .urlite-link {
     padding-right: 5px;
+    margin-bottom: 8px;
 }
 /*.table-urlites .urlite-clicks {
 }*/

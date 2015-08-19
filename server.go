@@ -49,8 +49,8 @@ func main() {
 	goji.Post("/urlite", ctr.Handle{context, web.Urlite})
 	goji.Get("/profile", ctr.Handle{context, web.Profile})
 	goji.Post("/profile", ctr.Handle{context, web.ProfilePost})
-	goji.Get("/dashboard", ctr.Handle{context, web.Dashboard})
-	goji.Get("/dashboard/data", ctr.Handle{context, web.DashboardData})
+	goji.Get("/urlites", ctr.Handle{context, web.Urlites})
+	goji.Get("/urlites/data", ctr.Handle{context, web.UrlitesData})
 
 	// Login routes
 	goji.Get("/login", ctr.Handle{context, web.Login})
@@ -66,9 +66,9 @@ func main() {
 	ar.Use(gm.SubRouter)
 	ar.Use(middleware.AutomaticOptions)
 	ar.Use(middleware.AdminAuth(context))
-	ar.Get("/", http.RedirectHandler("/admin/dashboard", 301))
-	ar.Get("/dashboard", ctr.Handle{context, web.Dashboard})
-	ar.Get("/dashboard/data", ctr.Handle{context, web.DashboardData})
+	ar.Get("/", http.RedirectHandler("/admin/urlites", 301))
+	ar.Get("/urlites", ctr.Handle{context, web.Urlites})
+	ar.Get("/urlites/data", ctr.Handle{context, web.UrlitesData})
 	ar.Get("/domains", ctr.Handle{context, web.Domains})
 	ar.Get("/domains/validate", ctr.Handle{context, web.DomainsValidate})
 	ar.Post("/domains", ctr.Handle{context, web.DomainsPost})
@@ -78,7 +78,7 @@ func main() {
 	ar.Post("/users", ctr.Handle{context, web.UsersPost})
 
 	goji.Handle("/admin/*", ar)
-	goji.Get("/admin", http.RedirectHandler("/admin/dashboard", 301))
+	goji.Get("/admin", http.RedirectHandler("/admin/urlites", 301))
 
 	/*
 	 * API routes

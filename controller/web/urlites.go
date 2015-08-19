@@ -15,26 +15,26 @@ import (
 	. "github.com/jeevatkm/urlite/controller"
 )
 
-func Dashboard(a *context.App, c web.C, r *http.Request) *Response {
+func Urlites(a *context.App, c web.C, r *http.Request) *Response {
 	u := GetUser(c)
 
 	if u.IsAdmin() {
 		AddData(c, Data{
-			"IsDashboard": true,
-			"Domains":     a.Domains,
+			"IsUrlites": true,
+			"Domains":   a.Domains,
 		})
 	} else {
 		AddData(c, Data{
-			"IsUserDashboard": true,
-			"Domains":         a.Domains,
+			"IsUserUrlites": true,
+			"Domains":       a.Domains,
 		})
 	}
 
-	content, err := a.Parse("dashboard", c.Env)
+	content, err := a.Parse("urlites", c.Env)
 	code := CheckError(err)
 
 	AddData(c, Data{
-		"Title":   "Dashboard | urlite",
+		"Title":   "Your Urlites | urlite",
 		"Content": ToHTML(content),
 	})
 
@@ -44,7 +44,7 @@ func Dashboard(a *context.App, c web.C, r *http.Request) *Response {
 	return HTMLc(body, code)
 }
 
-func DashboardData(a *context.App, c web.C, r *http.Request) *Response {
+func UrlitesData(a *context.App, c web.C, r *http.Request) *Response {
 	dName := strings.TrimSpace(r.FormValue("dName"))
 	log.Debugf("Domain Name: %v", dName)
 

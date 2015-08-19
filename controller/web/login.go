@@ -65,7 +65,7 @@ func LoginPost(a *context.App, c web.C, r *http.Request) *Response {
 
 	if user.IsAdmin() {
 		log.Debugf("Admin logged in '%s'", user.Email)
-		rtPath = "/admin/dashboard"
+		rtPath = "/admin/urlites"
 	}
 
 	srt := strings.TrimSpace(r.FormValue("srt"))
