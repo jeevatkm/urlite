@@ -1,5 +1,10 @@
 package util
 
+import (
+	"net"
+	"net/http"
+)
+
 func Contains(a []string, s string) bool {
 	for _, v := range a {
 		if v == s {
@@ -8,4 +13,12 @@ func Contains(a []string, s string) bool {
 	}
 
 	return false
+}
+
+func GetIP(r *http.Request) string {
+	if ipProxy := r.Header.Get("X-FORWARDED-FOR"); len(ipProxy) > 0 {
+		return ipProxy
+	}
+	ip, _, _ := net.SplitHostPort(r.RemoteAddr)
+	return ip
 }

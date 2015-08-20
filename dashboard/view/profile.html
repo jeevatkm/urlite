@@ -1,0 +1,126 @@
+{{define "profile"}}
+<div class="row admin">
+    <div id="alert_container"></div>
+    <div class="panel panel-default panel-pad">
+        <div class="panel-body">
+        	<div class="row">
+        		{{template "sidebar" .}}
+		        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-0 main">
+		        	<h2 class="page-header">Profile
+                        <div class="nav-form pull-right" style="margin-top:-5px">
+                            <button type="button" class="btn btn-default btn-sm btn-urlite-g" id="changePassword">Change Password</button>
+                         </div>
+                    </h2>
+		        	<div class="container-fluid">
+                    {{with .User}}
+                        <dl class="dl-horizontal">
+                            <dt>Email Address</dt>
+                            <dd>{{.Email}}</dd>
+                            <dt>Domains</dt>
+                            {{if .IsAdmin}}
+                                <dd>All domains</dd>
+                            {{else}}
+                                <dd>{{toCommaStr .Domains}}</dd>
+                            {{end}}
+                            <dt>Bearer Token</dt>
+                            <dd>{{.Bearer}}</dd>
+                            <dt>Permissions</dt>
+                            <dd>{{toCommaStr .Permissions}}</dd>
+                            <dt>Last Logged-In</dt>
+                            <dd id="lastLoggedIn"></dd>
+                            <dt>Last API Accessed</dt>
+                            <dd id="lastApiAccess"></dd>
+                        </dl>
+                    {{end}}
+		        	</div>
+		        </div> <!--/.main -->
+        	</div>
+        </div> <!--/.panel-body -->
+    </div>
+</div>
+<div class="modal fade" id="changePassModal" tabindex="-1" role="dialog" aria-labelledby="changePassModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="changePassModalLabel">Change Password</h4>
+      </div>
+      <div class="modal-body">
+        <div class="container-fluid">
+            <div id="modal_alert"></div>
+            <form id="changePassForm" method="post" class="form-horizontal">
+                <div class="form-group">
+                    <label for="existingPassword" class="col-sm-4 control-label">Existing Password</label>
+                    <div class="col-sm-7">
+                        <input type="password" class="form-control" id="existingPassword" name="existingPassword" placeholder="Existing password" required>
+                        <span class="help-block with-errors"></span>
+                    </div>                    
+                </div>
+                <div class="form-group">
+                    <label for="newPassword" class="col-sm-4 control-label">New Password</label>
+                    <div class="col-sm-7">
+                        <input type="password" data-minlength="8"  class="form-control" id="newPassword" name="newPassword" placeholder="New password, minimum of 8 characters" required>
+                    </div>                    
+                </div>
+                <div class="form-group">
+                    <label for="confirmPassword" class="col-sm-4 control-label">Confirm Password</label>
+                    <div class="col-sm-7">
+                        <input type="password" data-minlength="8"  class="form-control" id="confirmPassword" name="confirmPassword" placeholder="Confirm password" data-match="#newPassword" data-match-error="Whoops, these don't match" required>
+                        <span class="help-block with-errors"></span>
+                    </div>                    
+                </div>
+                <input type="hidden" id="action" name="a" value="">
+                <div class="form-group col-sm-6 pull-right" style="margin-right:-46px;margin-top:10px;">
+                    <button type="button" class="btn btn-default btn-urlite-r" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-success btn-green">Change it</button>
+                </div>
+            </form>
+        </div>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+<script type="text/javascript">
+    function wpr() {
+        $("#changePassword").click(function(){
+            $("#changePassModal")
+            .on('shown.bs.modal', function (e) { //var button = $(e.relatedTarget)  //var modal = $(this)
+                 $(this).find('.modal-body [name="existingPassword"]').focus();
+            })
+            .on('hidden.bs.modal', function (e) {            
+                $(this).find('.modal-body input').val('');
+            })
+            .modal('show');
+        });
+
+        $('#changePassForm').validator().on('submit', function (e) {
+            if (e.isDefaultPrevented()) {
+                return false;
+            } else {
+                $('#action').val('CP');
+                $.ajax({
+                    type: 'POST',
+                    url: '/profile',
+                    data: $('#changePassForm').serialize(),
+                    success: function(data){
+                        if (data.status == 'error') {
+                            $('#modal_alert').bsAlert(data.message, 'error');
+                        } else if (data.status == 'success') {
+                            $("#changePassModal").modal('hide');
+                            $('#alert_container').bsAlert(data.message).bsHideAlert();
+                        }
+                    },
+                    error: function(){
+                        $('#modal_alert').bsAlert('Oops! something went wrong.', 'error');
+                    }
+                });
+
+                return false;
+            }
+        });
+        
+        $('#lastLoggedIn').text(dateFormatter('{{.User.LastLoggedIn}}'));
+        $('#lastApiAccess').text(dateFormatter('{{.User.LastApiAccessed}}'));
+    }
+</script>
+{{end}}

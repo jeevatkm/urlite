@@ -2,7 +2,10 @@ package context
 
 import (
 	"encoding/gob"
+	"html/template"
 	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/BurntSushi/toml"
 	"github.com/jeevatkm/urlite/model"
@@ -15,8 +18,10 @@ import (
 )
 
 type Context struct {
+	Version   string
 	Config    *Configuration
 	DBSession *mgo.Session
+	Template  *template.Template
 	Domains   map[string]*model.Domain
 }
 
@@ -85,9 +90,11 @@ func (c *Context) IsProdMode() bool {
 	return c.Config.RunMode == "PROD"
 }
 
-func (c *Context) Close() {
-	log.Info("this is parent close method")
+func (c *Context) DB(gc *web.C) *mgo.Database {
+	return gc.Env["DB"].(*mgo.Database)
+}
 
+func (c *Context) Close() {
 	if c.DBSession != nil {
 		c.DBSession.Close()
 	}
@@ -102,15 +109,33 @@ func (c *Context) AddDomain(d *model.Domain) {
 		LinkCount:       d.LinkCount,
 		CustomLinkCount: d.CustomLinkCount,
 		TrackName:       d.TrackName}
+}
 
-	// // Initializing Hash generater for domain
-	// hd := hash.NewData()
-	// hd.Salt = d.Salt
-	// hd.MinLength = 4
-	// a.HashGen[d.Name] = hash.NewWithData(hd)
+func (c *Context) LoadTemplates(tplPath string, funcMap *template.FuncMap) {
+	tplPath = strings.TrimSpace(tplPath)
+	if len(tplPath) == 0 {
+		return
+	}
 
-	// // Initial linkstate for domain
-	// a.LinkState[d.Name] = false
+	var templates []string
+	fn := func(path string, f os.FileInfo, err error) error {
+		if f.IsDir() != true && strings.HasSuffix(f.Name(), ".html") {
+			templates = append(templates, path)
+		}
+		return nil
+	}
+
+	err := filepath.Walk(tplPath, fn)
+	if err != nil {
+		log.Fatalf("Unable to load templates: %v", err)
+		panic(err)
+	}
+
+	if funcMap == nil {
+		c.Template = template.Must(template.ParseFiles(templates...))
+	} else {
+		c.Template = template.Must(template.New("").Funcs(*funcMap).ParseFiles(templates...))
+	}
 }
 
 func (c *Context) readConfig(configFile *string) {
@@ -153,10 +178,6 @@ func (c *Context) loadDomains() {
 	}
 
 	log.Infof("%d domains loaded by app context", len(c.Domains))
-}
-
-func (c *Context) DB(gc *web.C) *mgo.Database {
-	return gc.Env["DB"].(*mgo.Database)
 }
 
 func (c *Context) db() *mgo.Database {

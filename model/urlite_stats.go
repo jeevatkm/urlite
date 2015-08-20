@@ -17,12 +17,11 @@ type UrliteStats struct {
 }
 
 type UrliteCountryStats struct {
-	ID             string    `bson:"_id,omitempty" json:"-"`
-	UrliteId       string    `bson:"urlite_id"`
-	CountryCodeISO string    `bson:"cc_iso" json:"country_code_iso"`
-	CountryCodeUN  string    `bson:"cc_un" json:"country_code_un"`
-	Clicks         string    `bson:"clicks" json:"clicks"`
-	ClickTime      time.Time `bson:"click_time" json:"click_time"`
+	ID          string    `bson:"_id,omitempty" json:"-"`
+	UrliteId    string    `bson:"urlite_id"`
+	CountryCode string    `bson:"cc_iso" json:"country_code_iso"`
+	Clicks      string    `bson:"clicks" json:"clicks"`
+	ClickTime   time.Time `bson:"click_time" json:"click_time"`
 }
 
 type UrliteReferrerStats struct {
@@ -35,11 +34,10 @@ type UrliteReferrerStats struct {
 }
 
 type UrliteLog struct {
-	ID             string    `bson:"_id,omitempty"`
-	UrliteId       string    `bson:"urlite_id"`
-	Domain         string    `bson:"domain"`
-	Refferrer      string    `bson:"referrer"`
-	CountryCodeISO string    `bson:"country_code_iso"`
-	CountryCodeUN  string    `bson:"country_code_un"`
-	CreatedTime    time.Time `bson:"ct"`
+	ID          string    `bson:"_id,omitempty"`
+	UrliteId    string    `bson:"urlite_id"`
+	Domain      string    `bson:"domain"`
+	Refferrer   string    `bson:"referrer"`
+	CountryCode string    `bson:"cc_iso"`
+	CreatedTime time.Time `bson:"ct"`
 }

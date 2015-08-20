@@ -1,0 +1,110 @@
+{{define "urlites"}}
+<div class="row admin">
+    <div id="alert_container"></div>
+    <div class="panel panel-default panel-pad">
+        <div class="panel-body">
+        	<div class="row">
+        		{{template "sidebar" .}}
+		        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-0 main">
+		        	<h2 class="page-header">Your Urlites
+                        <div class="form-inline pull-right" style="margin-top:-5px">
+                            <div class="form-group form-group-sm">
+                                <select class="form-control" id="selectedDomain" name="selectedDomain" style="width:150px;">
+                                    {{if .IsUrlites}}
+                                        {{range .Domains}}
+                                            <option value="{{.Name}}" {{if .IsDefault}}selected{{end}}>{{.Name}}</option>
+                                        {{end}}
+                                    {{else}}
+                                        {{$userDomains := .User.Domains}}
+                                        {{range $d := .Domains}}
+                                            {{range $ud := $userDomains}}
+                                                {{if eq $ud $d.Name}}
+                                                <option value="{{$d.Name}}" {{if $d.IsDefault}}selected{{end}}>{{$d.Name}}</option>
+                                                {{end}}
+                                            {{end}}
+                                        {{end}}
+                                    {{end}}
+                                </select>
+                            </div>
+                        </div>
+                    </h2>
+		        	<div class="urlites-content">
+		        		<table id="urliteTable"></table>
+		        	</div>
+		        </div> <!--/.main -->
+        	</div>
+        </div> <!--/.panel-body -->
+    </div>
+</div>
+<style type="text/css">
+    
+</style>
+<script type="text/javascript">
+    function createUrlite(r, i) {
+        dr = [
+            '<div class="urlite">',
+            '<div class="title-wrapper"><h5 class="urlite-title">' + r.long_url +'</h5></div>',
+            '<div class="urlite-link">',
+            '<span class="small urlite-cd">' + prettyDate(r.created_time) + '</span>-',
+            '<span class="urlite-domain">' + r.domain + '/</span><span class="urlite-hash">' + r.id + '</span>',
+            '<span id="rowCopy_' + i + '" data-clipboard-text="' + r.urlite + '" class="badge urlite-cp-badge">Copy</span>',
+            '<div class="pull-right"><span class="urlite-clicks">100</span>&nbsp;&nbsp;<i class="glyphicon glyphicon-stats"></i></div>',
+            '</div>'
+        ];
+
+        return dr.join('');
+    }
+
+    function wpr() {
+        var urliteTable = $('#urliteTable');
+
+        ZeroClipboard.config({
+            forceHandCursor: true
+        });
+
+        urliteTable.bootstrapTable({
+            pagination: true,
+            sidePagination: 'server',
+            pageSize: 10,
+            pageList: [],
+            height: 470,
+            showHeader: false,
+            idField: 'id',
+            classes: 'table-no-bordered table-hover table-urlites',
+            columns: [{
+                formatter: function(v, r, i) {
+                    return createUrlite(r, i);
+                }
+            }],
+            ajax: function(req) {
+                req.data.dName = $('#selectedDomain').val();
+                $.ajax({
+                    url: '{{if .IsUrlites}}/admin/urlites/data{{else}}/urlites/data{{end}}',
+                    data: req.data
+                })
+                .done(function(data) {
+                    req.success({
+                        total: data.total,
+                        rows: data.result
+                    });
+                    req.complete();
+                    var clip = new ZeroClipboard($('[id^=rowCopy_]'));
+                })
+                .fail(function(xhr, status, errorThrown) {
+                    res = xhr.responseJSON;
+                    $('#alert_container').bsAlert(res.message, 'error');
+                });
+            },
+            formatShowingRows: function(pf, pt, trows) {
+                return 'Showing '+ pf + ' to ' + pt + ' of ' + trows + ' urlites';
+            }
+        });
+
+        $('#selectedDomain').on('change', function () {
+            urliteTable.bootstrapTable('refresh');
+        });
+
+        $('.fixed-table-pagination').addClass('hidden');
+    }
+</script>
+{{end}}
